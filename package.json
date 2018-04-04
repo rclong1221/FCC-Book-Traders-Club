@@ -1,0 +1,32 @@
+{
+  "name": "FCC-Book-Traders-Club",
+  "version": "1.0.0",
+  "description": "A book club app",
+  "main": "server.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rclong1221/FCC-Book-Traders-Club"
+  },
+  "homepage": "",
+  "bugs": "https://github.com/rclong1221/FCC-Book-Traders-Clubissues",
+  "keywords": [],
+  "scripts": {
+    "start": "node server.js"
+  },
+  "author": "R.C. Long",
+  "license": "MIT",
+  "dependencies": {
+    "ajax-request": "^1.2.3",
+    "body-parser": "^1.18.2",
+    "dotenv": "^1.2.0",
+    "express": "^4.12.4",
+    "express-handlebars": "^3.0.0",
+    "express-session": "^1.11.3",
+    "mongoose": "^5.0.12",
+    "oauth": "^0.9.15",
+    "passport": "^0.3.0",
+    "passport-twitter": "^1.0.4",
+    "path": "^0.12.7",
+    "request": "^2.85.0"
+  }
+}
