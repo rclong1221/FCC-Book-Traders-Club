@@ -4,11 +4,10 @@ const mongoose = require('mongoose')
 const Schema = mongoose.Schema
 
 var User = new Schema({
-	twitter: {
-		id: String,
-		displayName: String,
-		username: String,
-	}
+	id: String,
+	displayName: String,
+	username: String,
+	location: String
 })
 
 module.exports = {
