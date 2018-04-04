@@ -1,6 +1,7 @@
 'use strict'
 
 const path = process.cwd()
+const Book = require(path + '/src/controllers/bookController.server.js')
 
 module.exports = function (app, passport) {
 
@@ -46,4 +47,7 @@ module.exports = function (app, passport) {
 			successRedirect: '/',
 			failureRedirect: '/login'
 		}))
+
+	app.route('/api/user/:id/books/')
+		.post(isLoggedIn, Book.addBook)
 }

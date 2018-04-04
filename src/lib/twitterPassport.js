@@ -32,10 +32,11 @@ module.exports = function (passport) {
 				} else {
 					var newUser = new User()
 
-					newUser.id = profile.id
-					newUser.username = profile.username
-					newUser.displayName = profile.displayName
-					newUser.location = profile.location
+					newUser.twitter.id = profile.id
+					newUser.twitter.username = profile.username
+					newUser.twitter.displayName = profile.displayName
+					newUser.twitter.location = profile.location
+					newUser.books = []
 
 					newUser.save(function (err) {
 						if (err) {
