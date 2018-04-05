@@ -4,61 +4,82 @@ const path = process.cwd()
 const Books = require(path + '/src/models/books.js')
 const Users = require(path + '/src/models/users.js').User
 
+const {google} = require('googleapis')
+const books = google.books('v1')
+
+const API_KEY = process.env.GOOGLE_KEY
+
 class Book {
   static addBook(req, res) {
-    // NOTE: Change.  Implement search first.
+
     function addOwnedBook(bId) {
       // find user
       Users.findOne({"twitter.id": req.user.twitter.id}, function (err, u) {
         if (err) console.error(err)
         // save bookid to User.ownedBooks
         if (u) {
-          console.log(u)
           u.books.push(bId)
           u.save(function (err, d) {
             if (err) console.error(err)
-            console.log(d)
+            return res.status(201).json({books: d.books})
           })
         }
       })
     }
 
-    let title = req.body.title
-    let author = "James Jones"
-    let year = 2000
-    let isbn = "12-34-56"
+    let newBook = new Books(req.body)
 
-    let newBook = new Books({
-      title: title,
-      author: author,
-      year: year,
-      isbn: isbn
-    })
-
-    Books.findOne({title: newBook.title, author: newBook.author, year: newBook.year, isbn: newBook.isbn}, function(err, data) {
-      console.log(data)
+    Books.findOne({
+      title: newBook.title,
+      author: newBook.author,
+      date: newBook.date,
+      isbn13: newBook.isbn13,
+      isbn10: newBook.isbn10
+    }, function(err, data) {
       // if book not in db
       if (!data) {
-        // call book api
-        let img_url = ""
-
-        // set newBook image address
-        newBook["img_url"] = img_url
-
         // save book
         newBook.save(newBook, function (err, b) {
-          console.log("Saved book")
           if (err) console.error(err)
           else addOwnedBook(b._id)
         })
       }
-      else {
-        console.log("Did not save book")
-        addOwnedBook(data._id)
-      }
+      else addOwnedBook(data._id)
     })
+  }
 
-    res.sendStatus(200)
+  static search(req, res) {
+      books.volumes.list({
+        auth: API_KEY,
+        q: req.params.q
+      }, function(err, data) {
+        let newBooks = []
+        data.data.items.forEach((item) => {
+          let nb = {
+              title: decodeURI(item.volumeInfo.title),
+              date: item.volumeInfo.publishedDate,
+              author: item.volumeInfo.authors[0],
+              img_url: item.volumeInfo.imageLinks === undefined ? '' : item.volumeInfo.imageLinks.thumbnail,
+              isbn13: item.volumeInfo.industryIdentifiers[0].identifier,
+              isbn10: item.volumeInfo.industryIdentifiers[1].identifier
+          }
+          newBooks.push(nb)
+        })
+
+        return res.status(201).json(newBooks)
+
+        // Books.findAll(newBooks, function(err, b) {
+        //   if(err) { return handleError(res, err) }
+        //   console.log(b)
+        //   return res.status(201).json(b)
+        // })
+
+        // Books.create(newBooks, function(err, b) {
+        //   if(err) { return handleError(res, err) }
+        //   console.log(b)
+        //   return res.status(201).json(b)
+        // })
+      })
   }
 }
 

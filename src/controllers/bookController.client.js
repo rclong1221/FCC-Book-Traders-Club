@@ -1,17 +1,19 @@
 'use strict'
 var user;
+var books;
 
 $(document).ready(function (){
-  getData();
+  search();
 });
 
-function getData() {
+function ownBook() {
   $.get("/api/user/:id", function (d) {
     user = d;
+    console.log(books[0]);
     $.ajax({
       type: "POST",
       url: `/api/user/${user.id}/books`,
-      data: { title: "Cat in the Hat" },
+      data: books[0],
       dataType: "json",
       success: function (d) {
         console.log(d);
@@ -19,5 +21,14 @@ function getData() {
       error: function (d) {
       }
     });
+  })
+}
+
+function search() {
+  var q = "Jack";
+  $.get("/api/books/" + q, function (d) {
+    // console.log(d);
+    books = d;
+    ownBook();
   })
 }
