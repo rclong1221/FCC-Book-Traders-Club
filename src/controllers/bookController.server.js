@@ -131,18 +131,6 @@ class Book {
         })
 
         return res.status(201).json(newBooks)
-
-        // Books.findAll(newBooks, function(err, b) {
-        //   if(err) { return handleError(res, err) }
-        //   console.log(b)
-        //   return res.status(201).json(b)
-        // })
-
-        // Books.create(newBooks, function(err, b) {
-        //   if(err) { return handleError(res, err) }
-        //   console.log(b)
-        //   return res.status(201).json(b)
-        // })
       })
   }
 }
