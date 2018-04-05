@@ -18,7 +18,7 @@ class Book {
         if (err) console.error(err)
         // save bookid to User.ownedBooks
         if (u) {
-          u.books.push(bId)
+          u.books.push({id: bId, trade: false})
           u.save(function (err, d) {
             console.log("USAVE")
             if (err) console.error(err)

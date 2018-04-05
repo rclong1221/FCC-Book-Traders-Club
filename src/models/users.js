@@ -3,6 +3,11 @@
 const mongoose = require('mongoose')
 const Schema = mongoose.Schema
 
+var OwnedBook = new Schema({
+	id: String,
+	trade: Boolean
+})
+
 var User = new Schema({
 	twitter: {
 		id: String,
@@ -10,7 +15,7 @@ var User = new Schema({
 		username: String,
 		location: String
 	},
-	books: [String],
+	books: [OwnedBook]
 })
 
 module.exports = {
