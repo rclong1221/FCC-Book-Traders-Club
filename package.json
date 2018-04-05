@@ -22,6 +22,7 @@
     "express": "^4.12.4",
     "express-handlebars": "^3.0.0",
     "express-session": "^1.11.3",
+    "googleapis": "^28.1.0",
     "mongoose": "^5.0.12",
     "oauth": "^0.9.15",
     "passport": "^0.3.0",

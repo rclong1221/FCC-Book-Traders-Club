@@ -4,10 +4,12 @@ const mongoose = require('mongoose')
 const Schema = mongoose.Schema
 
 var Books = new Schema({
-  name: String,
+  title: String,
   author: String,
-  year: Number,
-  isbn: String,
+  date: String,
+  isbn13: String,
+  isbn10: String,
+  img_url: String
 })
 
 module.exports = mongoose.model('Books', Books)
