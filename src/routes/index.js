@@ -48,6 +48,10 @@ module.exports = function (app, passport) {
 			failureRedirect: '/login'
 		}))
 
+	app.route('/api/books/:q')
+		.get(Book.search)
+
 	app.route('/api/user/:id/books/')
 		.post(isLoggedIn, Book.addBook)
+
 }
