@@ -20,6 +20,7 @@ class Book {
         if (u) {
           u.books.push(bId)
           u.save(function (err, d) {
+            console.log("USAVE")
             if (err) console.error(err)
             return res.status(201).json({books: d.books})
           })
@@ -40,11 +41,12 @@ class Book {
       if (!data) {
         // save book
         newBook.save(newBook, function (err, b) {
+          console.log("SAVE")
           if (err) console.error(err)
-          else addOwnedBook(b._id)
+          else addOwnedBook(b.isbn13)
         })
       }
-      else addOwnedBook(data._id)
+      else addOwnedBook(data.isbn13)
     })
   }
 
