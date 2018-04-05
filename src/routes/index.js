@@ -48,6 +48,11 @@ module.exports = function (app, passport) {
 			failureRedirect: '/login'
 		}))
 
+	app.route('/search/')
+		.get(function (req, res) {
+			res.sendFile(path + '/public/search.html')
+		})
+
 	app.route('/api/books/:q')
 		.get(Book.search)
 
