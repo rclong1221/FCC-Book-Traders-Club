@@ -41,8 +41,21 @@ function findBook(i13) {
 }
 
 // TODO: Add to trade
-function tradeBook(i13){
-  console.log(i13);
+function tradeBook(i13) {
+  var b = findBook(i13);
+
+  $.ajax({
+    type: "PUT",
+    url: `/api/user/${user.id}/trade`,
+    data: b,
+    dataType: "json",
+    success: function (d) {
+      // TODO: Use return data to populate owned book button in ui
+      console.log(d);
+    },
+    error: function (d) {
+    }
+  });
 }
 
 function search() {

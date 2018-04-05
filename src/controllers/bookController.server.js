@@ -15,15 +15,27 @@ class Book {
     function addOwnedBook(bId) {
       // find user
       Users.findOne({"twitter.id": req.user.twitter.id}, function (err, u) {
-        if (err) console.error(err)
+        if (err) {
+          console.log(err)
+          return res.sendStatus(500)
+        }
         // save bookid to User.ownedBooks
         if (u) {
-          u.books.push({id: bId, trade: false})
-          u.save(function (err, d) {
-            console.log("USAVE")
-            if (err) console.error(err)
-            return res.status(201).json({books: d.books})
+          let unowned = true
+          u.books.forEach((item) => {
+            if (item.id === bId) unowned = false
           })
+          if (unowned) {
+            u.books.push({id: bId, trade: false})
+            u.save(function (err, d) {
+              console.log("USAVE")
+              if (err) {
+                console.log(err)
+                return res.sendStatus(500)
+              }
+              return res.status(201).json({books: d.books})
+            })
+          } else return res.sendStatus(500)
         }
       })
     }
@@ -37,16 +49,62 @@ class Book {
       isbn13: newBook.isbn13,
       isbn10: newBook.isbn10
     }, function(err, data) {
+      if (err) {
+        console.log(err)
+        return res.sendStatus(500)
+      }
       // if book not in db
       if (!data) {
         // save book
         newBook.save(newBook, function (err, b) {
           console.log("SAVE")
-          if (err) console.error(err)
+          if (err) {
+            console.log(err)
+            return res.sendStatus(500)
+          }
           else addOwnedBook(b.isbn13)
         })
       }
       else addOwnedBook(data.isbn13)
+    })
+  }
+
+  static tradeBook(req, res) {
+    console.log("!!!!!!!!!!!!!!!!!!!!TRADE BOOK!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+    function flagBook(bId) {
+      // find user
+      Users.findOne({"twitter.id": req.user.twitter.id}, function (err, u) {
+        if (err) {
+          console.log(err)
+          return res.sendStatus(500)
+        }
+        // save bookid to User.ownedBooks
+        if (u) {
+          u.books.forEach((item) => {
+            if (item.id === bId) item.trade = (item.trade) ? false : true
+          })
+          u.save(function (err, d) {
+            console.log("USAVE")
+            if (err) {
+              console.log(err)
+              return res.sendStatus(500)
+            }
+            return res.status(201).json({books: d.books})
+          })
+        } else res.sendStatus(500)
+      })
+    }
+
+    let newBook = new Books(req.body)
+
+    Books.findOne({
+      title: newBook.title,
+      author: newBook.author,
+      date: newBook.date,
+      isbn13: newBook.isbn13,
+      isbn10: newBook.isbn10
+    }, function(err, data) {
+      if (data) flagBook(data.isbn13)
     })
   }
 
@@ -55,6 +113,10 @@ class Book {
         auth: API_KEY,
         q: req.params.q
       }, function(err, data) {
+        if (err) {
+          console.log(err)
+          return res.sendStatus(500)
+        }
         let newBooks = []
         data.data.items.forEach((item) => {
           let nb = {
