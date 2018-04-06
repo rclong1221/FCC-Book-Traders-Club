@@ -4,8 +4,10 @@ const mongoose = require('mongoose')
 const Schema = mongoose.Schema
 
 var OwnedBook = new Schema({
-	id: String,
-	trade: Boolean
+	isbn13: String,
+	trade: Boolean,
+	offerIsbn13: String,
+	offerUserId: String
 })
 
 var User = new Schema({

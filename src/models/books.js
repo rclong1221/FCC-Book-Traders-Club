@@ -8,7 +8,6 @@ var Books = new Schema({
   author: String,
   date: String,
   isbn13: String,
-  isbn10: String,
   img_url: String
 })
 

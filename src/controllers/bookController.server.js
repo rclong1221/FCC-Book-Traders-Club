@@ -23,10 +23,10 @@ class Book {
         if (u) {
           let unowned = true
           u.books.forEach((item) => {
-            if (item.id === bId) unowned = false
+            if (item.isbn13 === bId) unowned = false
           })
           if (unowned) {
-            u.books.push({id: bId, trade: false})
+            u.books.push({isbn13: bId, trade: false, offerUserId: "", offerIsbn13: ""})
             u.save(function (err, d) {
               console.log("USAVE")
               if (err) {
@@ -46,8 +46,7 @@ class Book {
       title: newBook.title,
       author: newBook.author,
       date: newBook.date,
-      isbn13: newBook.isbn13,
-      isbn10: newBook.isbn10
+      isbn13: newBook.isbn13
     }, function(err, data) {
       if (err) {
         console.log(err)
@@ -81,7 +80,7 @@ class Book {
         // save bookid to User.ownedBooks
         if (u) {
           u.books.forEach((item) => {
-            if (item.id === bId) item.trade = (item.trade) ? false : true
+            if (item.isbn13 === bId) item.trade = (item.trade) ? false : true
           })
           u.save(function (err, d) {
             console.log("USAVE")
@@ -101,8 +100,7 @@ class Book {
       title: newBook.title,
       author: newBook.author,
       date: newBook.date,
-      isbn13: newBook.isbn13,
-      isbn10: newBook.isbn10
+      isbn13: newBook.isbn13
     }, function(err, data) {
       if (data) flagBook(data.isbn13)
     })
@@ -124,8 +122,7 @@ class Book {
               date: item.volumeInfo.publishedDate,
               author: item.volumeInfo.authors[0],
               img_url: item.volumeInfo.imageLinks === undefined ? '' : item.volumeInfo.imageLinks.thumbnail,
-              isbn13: item.volumeInfo.industryIdentifiers[0].identifier,
-              isbn10: item.volumeInfo.industryIdentifiers[1].identifier
+              isbn13: item.volumeInfo.industryIdentifiers[0].identifier
           }
           newBooks.push(nb)
         })
@@ -143,7 +140,7 @@ class Book {
         let bookIds = []
         users.forEach((user) => {
           user.books.forEach((book) => {
-            if (!bookIds.includes(book.id)) bookIds.push(book.id)
+            if (!bookIds.includes(book.isbn13)) bookIds.push(book.isbn13)
           })
         })
         Books.find({isbn13: {$in: bookIds }}, function (err, books) {
@@ -152,7 +149,7 @@ class Book {
             return res.sendStatus(500)
           } else {
             console.log(books)
-            return res.status(201).json(books)
+            return res.status(201).json({users: users, books: books})
           }
         })
         return res.status(500)

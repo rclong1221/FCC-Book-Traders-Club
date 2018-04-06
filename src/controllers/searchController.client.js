@@ -77,7 +77,6 @@ function search() {
             Title: ${book.title}<br/>
             Author: ${book.author}<br/>
             Date: ${book.date}<br/>
-            ISBN10: ${book.isbn10}<br/>
             ISBN13: ${book.isbn13}<br/>
             <img src="${book.img_url}"/>
             <button class="btn btn-primary" id="b-${book.isbn13}" type="button" onclick={ownBook("${book.isbn13}")}>Own${ownCount}</button>
