@@ -192,8 +192,10 @@ class Book {
   }
 
   static offerBook(req, res) {
+    if (req.body.tradeUId === req.body.uId) return res.sendStatus(500)
+    if (req.body.uId !== req.user.twitter.id) return res.sendStatus(400)
+
     function flagBook() {
-      if (req.body.tradeUId === req.body.uId) return res.sendStatus(500)
       // find user
       Users.findOne({"twitter.id": req.body.tradeUId}, function (err, u) {
         if (err) {
@@ -245,8 +247,158 @@ class Book {
         } else return res.sendStatus(500)
       })
     }
-
     flagBook()
+  }
+
+  static changeOffer(req, res) {
+    if (req.body.tradeUId === req.body.uId) return res.sendStatus(500)
+    if (req.body.uId !== req.user.twitter.id) return res.sendStatus(400)
+    console.log(req.body)
+    // req.user.twitter.id YOU
+    // req.body.bId        YOU
+    // req.body.tradeUId      RECIPIENT
+    // req.body.tradeBId   RECIPIENT
+    console.log("HERE 1")
+    function rejectTrade() {
+      console.log("REJECT 1")
+      // find recipient
+      Users.findOne({"twitter.id": req.body.tradeUId}, function (err, u) {
+        if (err) {
+          console.log("REJECT 2")
+          console.log(err)
+          return res.sendStatus(500)
+        }
+        console.log(u)
+        if (u) {
+          console.log("REJECT 3")
+          // Remove offers with their old book
+          u.books.forEach((item) => {
+            if (item.isbn13 === req.body.tradeBId) {
+              item.trade = true
+              item.offerUserId = ""
+              item.offerIsbn13 = ""
+            }
+          })
+          u.offers = u.offers.filter((item) => {
+            return !(item.isbn13 === req.body.tradeBId && item.offerIsbn13 === req.body.bId)
+          })
+          u.save(function (err, d) {
+            if (err) {
+              console.log("REJECT 4")
+              console.log(err)
+              return res.sendStatus(500)
+            } else {
+              console.log("REJECT 5")
+              Users.findOne({"twitter.id": req.user.twitter.id}, function (err, me) {
+                if (err) {
+                  console.log("REJECT 6")
+                  console.log(err)
+                  return res.sendStatus(500)
+                } else {
+                  // Remove offers with your old book
+                  me.books.forEach((item) => {
+                    if (item.isbn13 === req.body.bId) {
+                      item.trade = true
+                      item.offerUserId = ""
+                      item.offerIsbn13 = ""
+                    }
+                  })
+                  me.offers = u.offers.filter((item) => {
+                    return !(item.tradeBId === req.body.isbn13 && item.offerIsbn13 === req.body.bId)
+                  })
+                  me.save(function (err, d) {
+                    if (err) {
+                      console.log("REJECT 7")
+                      console.log(err)
+                      return res.sendStatus(500)
+                    }
+                    return res.status(201).json({text: "Offer successfully made"})
+                  })
+                }
+              })
+            }
+          })
+        } else {
+          console.log("REJECT 8")
+          return res.sendStatus(500)
+        }
+      })
+    }
+
+    function acceptTrade() {
+      console.log("ACCEPT 1")
+      // find recipient
+      Users.findOne({"twitter.id": req.body.tradeUId}, function (err, u) {
+        if (err) {
+          console.log("ACCEPT 2")
+          console.log(err)
+          return res.sendStatus(500)
+        }
+        if (u) {
+          console.log("ACCEPT 3")
+          // Remove offers and books with their old book
+          u.books = u.books.filter((item) => {
+            return item.isbn13 !== req.body.tradeBId
+          })
+          u.offers = u.offers.filter((item) => {
+            return item.isbn13 !== req.body.tradeBId
+          })
+          // recipient gets your book
+          u.books.push({
+            isbn13: req.body.bId,
+            trade: false,
+            offerIsbn13: "",
+            offerUserId: ""
+          })
+          u.save(function (err, d) {
+            if (err) {
+              console.log("ACCEPT 4")
+              console.log(err)
+              return res.sendStatus(500)
+            } else {
+              Users.findOne({"twitter.id": req.user.twitter.id}, function (err, me) {
+                if (err) {
+                  console.log("ACCEPT 5")
+                  console.log(err)
+                  return res.sendStatus(500)
+                } else {
+                  console.log("ACCEPT 6")
+                  // Remove offers and books with their old book
+                  me.books = me.books.filter((item) => {
+                    return item.isbn13 !== req.body.bId
+                  })
+                  me.offers = me.offers.filter((item) => {
+                    return item.isbn13 !== req.body.bId
+                  })
+                  // recipient gets your book
+                  me.books.push({
+                    isbn13: req.body.tradeBId,
+                    trade: false,
+                    offerIsbn13: "",
+                    offerUserId: ""
+                  })
+                  me.save(function (err, d) {
+                    if (err) {
+                      console.log("ACCEPT 7")
+                      console.log(err)
+                      return res.sendStatus(500)
+                    }
+                    return res.status(201).json({text: "Offer successfully made"})
+                  })
+                }
+              })
+            }
+          })
+        } else {
+          console.log("ACCEPT 8")
+          return res.sendStatus(500)
+        }
+      })
+    }
+
+    if (req.body.accept === true) acceptTrade()
+    else if (!req.body.accept === false) rejectTrade()
+    else return res.sendStatus(400)
   }
 }
 

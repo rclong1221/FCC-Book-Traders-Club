@@ -75,14 +75,14 @@ function makeOffersDiv() {
             Author: ${b.book.author}<br/>
             Date: ${b.book.date}<br/>
             ISBN13: ${b.book.isbn13}<br/>
-            <button type="button" class="btn btn-primary">Accept</button>
+            <button type="button" class="btn btn-primary" onclick="changeOffer(true)">Accept</button>
           </div>
           <div class="col-5">
             <img src="${b.book.img_url}"/>
           </div>
         </div>
       </div>
-      <div class="col-3 border rounded" id="m-o-${b.info.isbn13}" onclick=offerBook('${b.info.isbn13}')>
+      <div class="col-3 border rounded" id="m-o-${b.info.isbn13}">
         <div class="row">
           <h4 class="col-12 text-center">Somedude</h4>
           <div class="col-5">
@@ -93,11 +93,41 @@ function makeOffersDiv() {
             Author: ${b.book.author}<br/>
             Date: ${b.book.date}<br/>
             ISBN13: ${b.book.isbn13}<br/>
-            <button type="button" class="btn btn-danger">Reject</button>
+            <button type="button" class="btn btn-danger" onclick="changeOffer(false)">Reject</button>
           </div>
         </div>
       </div>
       `
     }
   });
+}
+
+function changeOffer(accept) {
+
+  var uId = "950699122289344512";
+  var bId = "9780295741352";
+  var offerUId = "982048743275941888";
+  var offerBId = "0374706344";
+  
+  var body = {
+    accept: accept,
+    uId: uId,
+    bId: bId,
+    tradeUId: offerUId,
+    tradeBId: offerBId,
+  }
+  $.ajax({
+    type: "PUT",
+    url: "/api/user/:id/offer/:id",
+    data: body,
+    dataType: "json",
+    success: function (d) {
+      console.log("Success");
+      console.log(d);
+    },
+    error: function (d) {
+      console.log("Error");
+      console.log(d);
+    }
+  })
 }
