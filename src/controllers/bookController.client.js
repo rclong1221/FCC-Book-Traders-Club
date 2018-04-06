@@ -1,11 +1,10 @@
 'use strict'
 var books;
 var userBooks = [];
-var user;
+
 
 $(document).ready(function () {
   getTrades();
-  getUser();
 });
 
 function getTrades() {
@@ -121,10 +120,4 @@ function findBook(i13) {
     }
   })
   return b;
-}
-
-function getUser() {
-  $.get("/api/user/:id", function (d) {
-    user = d;
-  })
 }
