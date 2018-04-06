@@ -73,3 +73,7 @@ input:focus:-moz-placeholder {
 .bus-container {
   border-color: #2ECC71 !important;
 }
+
+.selected {
+  color: red !important;
+}

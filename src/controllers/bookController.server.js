@@ -10,6 +10,41 @@ const books = google.books('v1')
 const API_KEY = process.env.GOOGLE_KEY
 
 class Book {
+  static getMyBooks(req, res) {
+    Users.findOne({"twitter.id": req.user.twitter.id}, function (err, u) {
+      if (err) {
+        console.log(err)
+        return res.sendStatus(500)
+      }
+      if (u) {
+        let bookList = u.books.map((book) => { return book.isbn13 })
+
+        Books.find({isbn13: {$in: bookList}}, function (err, b) {
+          if (err) {
+            console.log(err)
+            return res.sendStatus(500)
+          }
+          let response = []
+
+          for (var j = 0; j < u.books.length; j++) {
+            for (var k = 0; k < b.length; k++) {
+              if (b[k].isbn13 === u.books[j].isbn13) {
+                // u.books[j].book = b[k]
+                // console.log(u.books[j].book)
+                let x = Object.assign({info: u.books[j]}, {book: b[k]})
+                response.push(x)
+                break;
+              }
+            }
+          }
+
+          return res.status(201).json(response)
+        })
+      }
+      else return res.sendStatus(500)
+    })
+  }
+
   static addBook(req, res) {
 
     function addOwnedBook(bId) {
@@ -28,7 +63,7 @@ class Book {
           if (unowned) {
             u.books.push({isbn13: bId, trade: false, offerUserId: "", offerIsbn13: ""})
             u.save(function (err, d) {
-              console.log("USAVE")
+              // console.log("USAVE")
               if (err) {
                 console.log(err)
                 return res.sendStatus(500)
@@ -56,7 +91,7 @@ class Book {
       if (!data) {
         // save book
         newBook.save(newBook, function (err, b) {
-          console.log("SAVE")
+          // console.log("SAVE")
           if (err) {
             console.log(err)
             return res.sendStatus(500)
@@ -69,7 +104,7 @@ class Book {
   }
 
   static tradeBook(req, res) {
-    console.log("!!!!!!!!!!!!!!!!!!!!TRADE BOOK!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+    // console.log("!!!!!!!!!!!!!!!!!!!!TRADE BOOK!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
     function flagBook(bId) {
       // find user
       Users.findOne({"twitter.id": req.user.twitter.id}, function (err, u) {
@@ -83,7 +118,7 @@ class Book {
             if (item.isbn13 === bId) item.trade = (item.trade) ? false : true
           })
           u.save(function (err, d) {
-            console.log("USAVE")
+            // console.log("USAVE")
             if (err) {
               console.log(err)
               return res.sendStatus(500)
@@ -148,13 +183,51 @@ class Book {
             console.log(err)
             return res.sendStatus(500)
           } else {
-            console.log(books)
+            // console.log(books)
             return res.status(201).json({users: users, books: books})
           }
         })
         return res.status(500)
       }
     })
+  }
+
+  static offerBook(req, res) {
+    console.log("!!!!!!!!!!!!!!!!!!!!OFFER BOOK!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+    function flagBook() {
+      if (req.body.tradeUId === req.body.uId) return res.sendStatus(500)
+      // find user
+      Users.findOne({"twitter.id": req.body.tradeUId}, function (err, u) {
+        if (err) {
+          console.log(err)
+          return res.sendStatus(500)
+        }
+        if (u) {
+          u.books.forEach((item) => {
+            if (item.isbn13 === req.body.tradeBId) {
+              if (item.offerUserId === "") {
+                console.log("IN4")
+                item.offerUserId = req.body.uId
+                item.offerIsbn13 = req.body.bId
+              }
+            }
+          })
+          u.save(function (err, d) {
+            console.log("IN5")
+            // console.log("USAVE")
+            if (err) {
+              console.log(err)
+              return res.sendStatus(500)
+            }
+            return res.status(201).json({text: "Offer successfully made"})
+          })
+        } else return res.sendStatus(500)
+      })
+    }
+
+    console.log(req.body)
+
+    flagBook()
   }
 }
 
