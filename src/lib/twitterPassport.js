@@ -38,6 +38,7 @@ module.exports = function (passport) {
 					newUser.twitter.location = profile.location
 					newUser.books = []
 					newUser.trades = []
+					newUser.offers = []
 
 					newUser.save(function (err) {
 						if (err) {
