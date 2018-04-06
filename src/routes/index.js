@@ -69,4 +69,9 @@ module.exports = function (app, passport) {
 	app.route('/api/user/:id/offer/')
 		.put(isLoggedIn, Book.offerBook)
 
+	app.route('/my-books')
+		.get(isLoggedIn, function(req, res) {
+			res.sendFile(path + '/public/my-books.html')
+		})
+
 }
