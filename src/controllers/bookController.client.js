@@ -6,9 +6,11 @@ var offer;
 var tradeUId;
 var tradeBId;
 var booksDiv = "";
+var user;
 
 $(document).ready(function () {
   $.get("/api/user/:id", function (d, s) {
+    user = d;
     if (d.id) getTradesAndUserBooksTrades();
     else getTradesOnly();
   })
@@ -56,39 +58,41 @@ function updateDOM() {
     u.books.forEach(function (book) {
       var name = (user.id === u.twitter.id) ? "You are" : `${u.twitter.displayName} is`;
       var modal = "";
-      if (user.id !== u.twitter.id) modal = `
-        <button class="btn btn-primary" id="b-${book.book.isbn13}" type="button" onclick={ownBook("${book.book.isbn13}")}>Add to Bookshelf</button>
+      if (user.id) {
+        if (user.id !== u.twitter.id) modal = `
+          <button class="btn btn-primary" id="b-${book.book.isbn13}" type="button" onclick={ownBook("${book.book.isbn13}")}>Add to Bookshelf</button>
 
-        <!-- Button to Open the Modal -->
-        <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#myModal" id="b-o-${book.book.isbn13}" type="button" onclick="selectTrade('${book.book.isbn13}', '${u.twitter.id}')">
-          Make Offer
-        </button>
+          <!-- Button to Open the Modal -->
+          <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#myModal" id="b-o-${book.book.isbn13}" type="button" onclick="selectTrade('${book.book.isbn13}', '${u.twitter.id}')">
+            Make Offer
+          </button>
 
-        <!-- The Modal -->
-        <div class="modal fade" id="myModal">
-          <div class="modal-dialog">
-            <div class="modal-content">
+          <!-- The Modal -->
+          <div class="modal fade" id="myModal">
+            <div class="modal-dialog">
+              <div class="modal-content">
 
-              <!-- Modal Header -->
-              <div class="modal-header">
-                <h4 class="modal-title">Make an offer</h4>
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <!-- Modal Header -->
+                <div class="modal-header">
+                  <h4 class="modal-title">Make an offer</h4>
+                  <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+
+                <!-- Modal body -->
+                <div class="modal-body">
+                  ${booksDiv}
+                </div>
+
+                <!-- Modal footer -->
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+                </div>
+
               </div>
-
-              <!-- Modal body -->
-              <div class="modal-body">
-                ${booksDiv}
-              </div>
-
-              <!-- Modal footer -->
-              <div class="modal-footer">
-                <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
-              </div>
-
             </div>
           </div>
-        </div>
-      `;
+        `;
+      }
 
       var h = `
           <div class="col-6 col-sm-4 col-md-3 border rounded" id="${book.book.isbn13}">
