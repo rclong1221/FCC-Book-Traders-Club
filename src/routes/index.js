@@ -62,5 +62,7 @@ module.exports = function (app, passport) {
 	app.route('/api/user/:id/trade/')
 		.put(isLoggedIn, Book.tradeBook)
 
+	app.route('/api/books')
+		.get(Book.getTrades)
 
 }

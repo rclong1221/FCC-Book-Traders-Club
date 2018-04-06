@@ -133,6 +133,32 @@ class Book {
         return res.status(201).json(newBooks)
       })
   }
+
+  static getTrades(req, res) {
+    Users.find({ "books.0": { "$exists": true } }, function(err, users) {
+      if (err) {
+        console.log(err)
+        return res.sendStatus(500)
+      } else {
+        let bookIds = []
+        users.forEach((user) => {
+          user.books.forEach((book) => {
+            if (!bookIds.includes(book.id)) bookIds.push(book.id)
+          })
+        })
+        Books.find({isbn13: {$in: bookIds }}, function (err, books) {
+          if (err) {
+            console.log(err)
+            return res.sendStatus(500)
+          } else {
+            console.log(books)
+            return res.status(201).json(books)
+          }
+        })
+        return res.status(500)
+      }
+    })
+  }
 }
 
 module.exports = Book
