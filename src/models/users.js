@@ -18,6 +18,7 @@ var User = new Schema({
 		location: String
 	},
 	books: [OwnedBook],
+	trades: [OwnedBook],
 	offers: [OwnedBook]
 })
 

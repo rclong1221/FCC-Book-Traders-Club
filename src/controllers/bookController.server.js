@@ -104,7 +104,6 @@ class Book {
   }
 
   static tradeBook(req, res) {
-    // console.log("!!!!!!!!!!!!!!!!!!!!TRADE BOOK!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
     function flagBook(bId) {
       // find user
       Users.findOne({"twitter.id": req.user.twitter.id}, function (err, u) {
@@ -193,7 +192,6 @@ class Book {
   }
 
   static offerBook(req, res) {
-    console.log("!!!!!!!!!!!!!!!!!!!!OFFER BOOK!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
     function flagBook() {
       if (req.body.tradeUId === req.body.uId) return res.sendStatus(500)
       // find user
@@ -206,26 +204,47 @@ class Book {
           u.books.forEach((item) => {
             if (item.isbn13 === req.body.tradeBId) {
               if (item.offerUserId === "") {
-                console.log("IN4")
                 item.offerUserId = req.body.uId
                 item.offerIsbn13 = req.body.bId
               }
             }
           })
+          u.offers.push({
+            isbn13: req.body.tradeBId,
+            trade: true,
+            offerIsbn13: req.body.bId,
+            offerUserId: req.body.uId
+          })
           u.save(function (err, d) {
-            console.log("IN5")
-            // console.log("USAVE")
             if (err) {
               console.log(err)
               return res.sendStatus(500)
+            } else {
+              Users.findOne({"twitter.id": req.user.twitter.id}, function (err, me) {
+                if (err) {
+                  console.log(err)
+                  return res.sendStatus(500)
+                } else {
+                  me.offers.push({
+                  	isbn13: req.body.bId,
+                  	trade: true,
+                  	offerIsbn13: req.body.tradeBId,
+                  	offerUserId: req.body.tradeUId
+                  })
+                  me.save(function (err, d) {
+                    if (err) {
+                      console.log(err)
+                      return res.sendStatus(500)
+                    }
+                    return res.status(201).json({text: "Offer successfully made"})
+                  })
+                }
+              })
             }
-            return res.status(201).json({text: "Offer successfully made"})
           })
         } else return res.sendStatus(500)
       })
     }
-
-    console.log(req.body)
 
     flagBook()
   }
