@@ -56,8 +56,8 @@ class Offer {
       .populate('recipientBook')
       .exec()
     })
-    .then(function (ios) {
-      incomingOffers = ios
+    .then(function (oos) {
+      outgoingOffers = oos
       return Offers.find({'creator': user._id})
       .populate('creator')
       .populate('creatorBook')
@@ -65,8 +65,8 @@ class Offer {
       .populate('recipientBook')
       .exec()
     })
-    .then(function (oos) {
-      outgoingOffers = oos
+    .then(function (ios) {
+      incomingOffers = ios
       return res.status(201).json({
         io: incomingOffers,
         oo: outgoingOffers
