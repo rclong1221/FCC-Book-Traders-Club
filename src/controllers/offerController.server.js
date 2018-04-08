@@ -77,6 +77,33 @@ class Offer {
       return res.sendStatus(500)
     })
   }
+  static deleteOffer(req, res) {
+    let user
+
+    Users.findOne({'twitter.id': req.user.twitter.id}).exec()
+    .then(function (u) {
+      user = u
+      return Offers.findOne({_id: req.body.id}).exec()
+    })
+    .then(function (o) {
+      if (String(o.creator) != String(user._id) && String(o.recipient) != String(user._id)) {
+        throw new Error("User doesn't have credentials to delete")
+        return res.sendStatus(500)
+      }
+      else {
+        return o.remove()
+      }
+    })
+    .then(function (s) {
+      return res.status(200).send({ redirect: '/my-books' })
+    })
+    .catch(function (err) {
+      if (err) {
+        console.log(err)
+        return res.sendStatus(500)
+      }
+    })
+  }
 }
 
 function findUsers(ul) {

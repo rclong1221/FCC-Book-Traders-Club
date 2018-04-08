@@ -99,7 +99,7 @@ function makeTradesDiv() {
             Author: ${o.recipientBook.author}<br/>
             Date: ${o.recipientBook.date}<br/>
             ISBN13: ${o.recipientBook.isbn13}<br/>
-            <button type="button" class="btn btn-danger" onclick="changeOffer(false, '${o.recipient.twitter.id}', '${o.recipientBook.isbn13}', '${o.recipient.twitter.id}', '${o.recipientBook.isbn13}')">Rescind</button>
+            <button type="button" class="btn btn-danger" onclick="deleteOffer('${o._id}')">Rescind</button>
           </div>
         </div>
       </div>
@@ -192,7 +192,7 @@ function makeOffersDiv() {
             Author: ${o.recipientBook.author}<br/>
             Date: ${o.recipientBook.date}<br/>
             ISBN13: ${o.recipientBook.isbn13}<br/>
-            <button type="button" class="btn btn-danger" onclick="changeOffer(false, '${o.recipient.twitter.id}', '${o.recipientBook.isbn13}', '${o.recipient.twitter.id}', '${o.recipientBook.isbn13}')">Reject</button>
+            <button type="button" class="btn btn-danger" onclick="deleteOffer('${o._id}')">Reject</button>
           </div>
         </div>
       </div>
@@ -219,6 +219,25 @@ function changeOffer(accept, uId, bId, offerUId, offerBId) {
     success: function (d) {
       console.log("Success");
       console.log(d);
+    },
+    error: function (d) {
+      console.log("Error");
+      console.log(d);
+    }
+  })
+}
+
+function deleteOffer(id) {
+  console.log(id);
+  $.ajax({
+    type: "DELETE",
+    url: "/api/offer/",
+    data: {id: id},
+    dataType: "json",
+    success: function(d) {
+      if (d.redirect) {
+        window.location.href = d.redirect;
+      }
     },
     error: function (d) {
       console.log("Error");
