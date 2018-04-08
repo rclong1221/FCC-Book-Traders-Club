@@ -82,5 +82,6 @@ module.exports = function (app, passport) {
 	app.route('/api/offer/')
 		.get(isLoggedIn, Offer.getOffers)
 		.post(isLoggedIn, Offer.addOffer)
+		.put(isLoggedIn, Offer.acceptOffer)
 		.delete(isLoggedIn, Offer.deleteOffer)
 }

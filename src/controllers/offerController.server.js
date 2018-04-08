@@ -56,8 +56,8 @@ class Offer {
       .populate('recipientBook')
       .exec()
     })
-    .then(function (oos) {
-      outgoingOffers = oos
+    .then(function (ios) {
+      incomingOffers = ios
       return Offers.find({'creator': user._id})
       .populate('creator')
       .populate('creatorBook')
@@ -65,8 +65,8 @@ class Offer {
       .populate('recipientBook')
       .exec()
     })
-    .then(function (ios) {
-      incomingOffers = ios
+    .then(function (oos) {
+      outgoingOffers = oos
       return res.status(201).json({
         io: incomingOffers,
         oo: outgoingOffers
@@ -77,6 +77,7 @@ class Offer {
       return res.sendStatus(500)
     })
   }
+
   static deleteOffer(req, res) {
     let user
 
@@ -104,14 +105,89 @@ class Offer {
       }
     })
   }
-}
+  
+  static acceptOffer(req, res) {
+    let recipient,
+        creator,
+        offer
 
-function findUsers(ul) {
-  return Users.find(ul)
-}
+    Offers.findOne({'_id': req.body._id,})
+    .populate('creator')
+    .populate('creatorBook')
+    .populate('recipient')
+    .populate('recipientBook')
+    .exec()
+    .then(function (o) {
+      offer = o
+      if (
+        String(o.creator._id) !== String(req.body.creator._id)
+        && String(o.creatorBook._id) !== String(req.body.creatorBook._id)
+        && String(o.recipient._id) !== String(req.body.recipient._id)
+        && String(o.recipientBook._id) !== String(req.body.recipientBook._id)
+      ) {
+        throw new Error("User doesn't have credentials to accept")
+        return res.sendStatus(500)
+      } else {
+        return Users.findOne({'twitter.id': req.user.twitter.id}).exec()
+      }
+    })
+    .then(function (u) {
+      recipient = u
+      return Users.findOne({_id: req.body.creator._id}).exec()
+    })
+    .then(function (u) {
+      creator = u
+      let cOld, rOld
 
-function findBooks(bl) {
-  return Books.find(bl)
+      // Remove recipient book from recipient
+      for (let i = 0; i < recipient.books.length; i++) {
+        if (recipient.books[i].isbn13 === offer.recipientBook.isbn13) {
+          cOld = Object.assign(recipient.books[i])
+          recipient.books.splice(i, 1)
+          break
+        }
+      }
+
+      // Remove creator book from creator
+      for (let i = 0; i < creator.books.length; i++) {
+        if (creator.books[i].isbn13 === offer.creatorBook.isbn13) {
+          rOld = creator.books[i]
+          creator.books.splice(i, 1)
+          break
+        }
+      }
+
+      // Add creator book to recipient
+      recipient.books.push(rOld)
+
+      // Add recipient book to creator
+      creator.books.push(cOld)
+
+      return Offers.remove({
+        $or: [
+          {'creator': offer.creator._id, 'creatorBook': offer.creatorBook._id},
+          {'recipient': offer.creator._id, 'recipientBook': offer.creatorBook._id},
+          {'creator': offer.recipient._id, 'creatorBook': offer.recipientBook._id},
+          {'recipient': offer.recipient._id, 'recipientBook': offer.recipientBook._id},
+        ]
+      }).exec()
+    })
+    .then(function (os) {
+      return recipient.save()
+    })
+    .then(function (u) {
+      return creator.save()
+    })
+    .then(function (u) {
+      return res.status(200).send({ redirect: '/my-books' })
+    })
+    .catch(function (err) {
+      if (err) {
+        console.log(err)
+        return res.sendStatus(500)
+      }
+    })
+  }
 }
 
 module.exports = Offer

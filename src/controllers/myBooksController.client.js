@@ -57,54 +57,15 @@ function makeTradesDiv() {
   offers.oo.forEach((o) => {
     if (o.recipient.twitter.id !== "") {
       tradesDiv += `
-      <div class="col-3 border rounded" id="t-o-${o.recipientBook.isbn13}">
+      <div class="col-3 border rounded" id="m-o-${o.creatorBook.isbn13}">
         <div class="row">
           <h4 class="col-12 text-center">You</h4>
-          <div class="col-5">
-            <img src="${o.recipientBook.img_url}"/>
-          </div>
           <div class="col-7">
-            Title: ${o.recipientBook.title}<br/>
-            Author: ${o.recipientBook.author}<br/>
-            Date: ${o.recipientBook.date}<br/>
-            ISBN13: ${o.recipientBook.isbn13}<br/>
+            Title: ${o.creatorBook.title}<br/>
+            Author: ${o.creatorBook.author}<br/>
+            Date: ${o.creatorBook.date}<br/>
+            ISBN13: ${o.creatorBook.isbn13}<br/>
             <button type="button" class="btn btn-danger" onclick="deleteOffer('${o._id}')">Rescind</button>
-          </div>
-        </div>
-      </div>
-      <div class="col-3 border rounded" id="m-o-${o.creatorBook.isbn13}">
-        <div class="row">
-          <h4 class="col-12 text-center">${o.creator.twitter.displayName}</h4>
-          <div class="col-7">
-            Title: ${o.creatorBook.title}<br/>
-            Author: ${o.creatorBook.author}<br/>
-            Date: ${o.creatorBook.date}<br/>
-            ISBN13: ${o.creatorBook.isbn13}<br/>
-          </div>
-          <div class="col-5">
-            <img src="${o.creatorBook.img_url}"/>
-          </div>
-        </div>
-      </div>
-      `
-    }
-  });
-}
-
-function makeOffersDiv() {
-  console.log(offers)
-  offers.io.forEach((o) => {
-    if (o.creator.twitter.id !== "") {
-      offersDiv += `
-      <div class="col-3 border rounded" id="m-o-${o.creatorBook.isbn13}">
-        <div class="row">
-          <h4 class="col-12 text-center">You</h4>
-          <div class="col-7">
-            Title: ${o.creatorBook.title}<br/>
-            Author: ${o.creatorBook.author}<br/>
-            Date: ${o.creatorBook.date}<br/>
-            ISBN13: ${o.creatorBook.isbn13}<br/>
-            <button type="button" class="btn btn-primary" onclick="changeOffer(true, '${o.creator.twitter.id}', '${o.creatorBook.isbn13}', '${o.creator.twitter.id}', '${o.creatorBook.isbn13}')">Accept</button>
           </div>
           <div class="col-5">
             <img src="${o.creatorBook.img_url}"/>
@@ -122,7 +83,6 @@ function makeOffersDiv() {
             Author: ${o.recipientBook.author}<br/>
             Date: ${o.recipientBook.date}<br/>
             ISBN13: ${o.recipientBook.isbn13}<br/>
-            <button type="button" class="btn btn-danger" onclick="deleteOffer('${o._id}')">Reject</button>
           </div>
         </div>
       </div>
@@ -131,24 +91,57 @@ function makeOffersDiv() {
   });
 }
 
-function changeOffer(accept, uId, bId, offerUId, offerBId) {
-  var body = {
-    accept: accept,
-    uId: uId,
-    bId: bId,
-    offerUId: offerUId,
-    offerBId: offerBId,
-  }
+function makeOffersDiv() {
+  offers.io.forEach((o, index) => {
+    if (o.creator.twitter.id !== "") {
+      offersDiv += `
+      <div class="col-3 border rounded" id="t-o-${o.recipientBook.isbn13}">
+        <div class="row">
+          <h4 class="col-12 text-center">You</h4>
+          <div class="col-5">
+            <img src="${o.recipientBook.img_url}"/>
+          </div>
+          <div class="col-7">
+            Title: ${o.recipientBook.title}<br/>
+            Author: ${o.recipientBook.author}<br/>
+            Date: ${o.recipientBook.date}<br/>
+            ISBN13: ${o.recipientBook.isbn13}<br/>
+            <button type="button" class="btn btn-primary" onclick="changeOffer(${index})">Accept</button>
+          </div>
+        </div>
+      </div>
+      <div class="col-3 border rounded" id="m-o-${o.creatorBook.isbn13}">
+        <div class="row">
+          <h4 class="col-12 text-center">${o.creator.twitter.displayName}</h4>
+          <div class="col-7">
+            Title: ${o.creatorBook.title}<br/>
+            Author: ${o.creatorBook.author}<br/>
+            Date: ${o.creatorBook.date}<br/>
+            ISBN13: ${o.creatorBook.isbn13}<br/>
+            <button type="button" class="btn btn-danger" onclick="deleteOffer('${o._id}')">Reject</button>
+          </div>
+          <div class="col-5">
+            <img src="${o.creatorBook.img_url}"/>
+          </div>
+        </div>
+      </div>
+      `
+    }
+  });
+}
 
-  console.log(body);
+function changeOffer(i) {
+  var body = offers.io[i]
+
   $.ajax({
     type: "PUT",
-    url: "/api/user/:id/offer/:id",
+    url: "/api/offer/",
     data: body,
     dataType: "json",
     success: function (d) {
-      console.log("Success");
-      console.log(d);
+      if (d.redirect) {
+        window.location.href = d.redirect;
+      }
     },
     error: function (d) {
       console.log("Error");
