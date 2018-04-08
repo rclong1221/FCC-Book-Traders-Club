@@ -3,8 +3,8 @@ var books;
 var userBooks = [];
 var myBooks;
 var offer;
-var tradeUId;
-var tradeBId;
+var offerUId;
+var offerBId;
 var booksDiv = "";
 var user;
 
@@ -134,7 +134,7 @@ function getTradesAndUserBooksTrades() {
 }
 
 function makeOffer(bId) {
-  var b = {uId: user.id, bId: bId, tradeBId: tradeBId, tradeUId: tradeUId };
+  var b = {uId: user.id, bId: bId, offerBId: offerBId, offerUId: offerUId };
 
   $.ajax({
     type: "PUT",
@@ -151,8 +151,8 @@ function makeOffer(bId) {
 }
 
 function selectTrade(bId, uId) {
-  tradeBId = bId;
-  tradeUId = uId;
+  offerBId = bId;
+  offerUId = uId;
   $(".selected").removeClass("selected");
 }
 

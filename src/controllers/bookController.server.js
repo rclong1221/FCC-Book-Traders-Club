@@ -1,7 +1,7 @@
 'use strict'
 
 const path = process.cwd()
-const Books = require(path + '/src/models/books.js')
+const Books = require(path + '/src/models/books.js').Book
 const Users = require(path + '/src/models/users.js').User
 
 const {google} = require('googleapis')
@@ -11,37 +11,84 @@ const API_KEY = process.env.GOOGLE_KEY
 
 class Book {
   static getMyBooks(req, res) {
-    Users.findOne({"twitter.id": req.user.twitter.id}, function (err, u) {
+    let user
+    Users.findOne({"twitter.id": req.user.twitter.id}).exec()
+      .then(function (u) {
+        if (u) {
+          user = u
+          let bookList = u.books.map((book) => { return book.isbn13 })
+
+          return Books.find({isbn13: {$in: bookList}}).exec()
+        }
+        else return res.sendStatus(500)
+      })
+      .then(function (b) {
+        let response = []
+
+        for (var j = 0; j < user.books.length; j++) {
+          for (var k = 0; k < b.length; k++) {
+            if (b[k].isbn13 === user.books[j].isbn13) {
+              // u.books[j].book = b[k]
+              // console.log(u.books[j].book)
+              let x = Object.assign({info: user.books[j]}, {book: b[k]})
+              response.push(x)
+              break;
+            }
+          }
+        }
+
+        return res.status(201).json(response)
+      })
+      .catch(function (err) {
+        console.log(err)
+        return res.sendStatus(500)
+      })
+  }
+
+  static getMyOffers(req, res) {
+    let user,
+        usersResponse;
+
+    Users.findOne({"twitter.id": req.user.twitter.id}).exec()
+    .then(function (u) {
+      if (u) {
+        user = u
+
+        let bookList = user.offers.map((book) => { return book.isbn13 })
+        user.offers.forEach((offer) => {
+          if (!bookList.includes(offer.offerIsbn13)) bookList.push(offer.offerIsbn13)
+        })
+
+        return Books.find({isbn13: {$in: bookList}}).exec()
+      }
+      else return res.sendStatus(500)
+    })
+    .then(function (b) {
+      let response = []
+
+      for (var j = 0; j < user.offers.length; j++) {
+        for (var k = 0; k < b.length; k++) {
+          if (b[k].isbn13 === user.offers[j].isbn13) {
+            let x = Object.assign({info: user.offers[j]}, {book: b[k]})
+            response.push(x)
+            break;
+          }
+        }
+      }
+
+      response.forEach((item) => {
+        b.forEach((bs) => {
+          if (bs.isbn13 === item.info.offerIsbn13) item.offer = bs
+        })
+      })
+
+      return res.status(201).json(response)
+    })
+    .catch(function (err) {
       if (err) {
         console.log(err)
         return res.sendStatus(500)
       }
-      if (u) {
-        let bookList = u.books.map((book) => { return book.isbn13 })
-
-        Books.find({isbn13: {$in: bookList}}, function (err, b) {
-          if (err) {
-            console.log(err)
-            return res.sendStatus(500)
-          }
-          let response = []
-
-          for (var j = 0; j < u.books.length; j++) {
-            for (var k = 0; k < b.length; k++) {
-              if (b[k].isbn13 === u.books[j].isbn13) {
-                // u.books[j].book = b[k]
-                // console.log(u.books[j].book)
-                let x = Object.assign({info: u.books[j]}, {book: b[k]})
-                response.push(x)
-                break;
-              }
-            }
-          }
-
-          return res.status(201).json(response)
-        })
-      }
-      else return res.sendStatus(500)
     })
   }
 
@@ -49,11 +96,8 @@ class Book {
 
     function addOwnedBook(bId) {
       // find user
-      Users.findOne({"twitter.id": req.user.twitter.id}, function (err, u) {
-        if (err) {
-          console.log(err)
-          return res.sendStatus(500)
-        }
+      Users.findOne({"twitter.id": req.user.twitter.id}).exec()
+      .then(function (u) {
         // save bookid to User.ownedBooks
         if (u) {
           let unowned = true
@@ -61,9 +105,13 @@ class Book {
             if (item.isbn13 === bId) unowned = false
           })
           if (unowned) {
-            u.books.push({isbn13: bId, trade: false, offerUserId: "", offerIsbn13: ""})
+            u.books.push({
+              isbn13: bId,
+              trade: false,
+              offerUserId: "",
+              offerIsbn13: ""
+            })
             u.save(function (err, d) {
-              // console.log("USAVE")
               if (err) {
                 console.log(err)
                 return res.sendStatus(500)
@@ -71,6 +119,12 @@ class Book {
               return res.status(201).json({books: d.books})
             })
           } else return res.sendStatus(500)
+        }
+      })
+      .catch(function (err) {
+        if (err) {
+          console.log(err)
+          return res.sendStatus(500)
         }
       })
     }
@@ -82,11 +136,8 @@ class Book {
       author: newBook.author,
       date: newBook.date,
       isbn13: newBook.isbn13
-    }, function(err, data) {
-      if (err) {
-        console.log(err)
-        return res.sendStatus(500)
-      }
+    }).exec()
+    .then(function(data) {
       // if book not in db
       if (!data) {
         // save book
@@ -101,16 +152,19 @@ class Book {
       }
       else addOwnedBook(data.isbn13)
     })
+    .catch(function (err) {
+      if (err) {
+        console.log(err)
+        return res.sendStatus(500)
+      }
+    })
   }
-
+// TODO: Remove.  Pointless.
   static tradeBook(req, res) {
     function flagBook(bId) {
       // find user
-      Users.findOne({"twitter.id": req.user.twitter.id}, function (err, u) {
-        if (err) {
-          console.log(err)
-          return res.sendStatus(500)
-        }
+      Users.findOne({"twitter.id": req.user.twitter.id}).exec()
+      .then(function (u) {
         // save bookid to User.ownedBooks
         if (u) {
           u.books.forEach((item) => {
@@ -126,6 +180,12 @@ class Book {
           })
         } else res.sendStatus(500)
       })
+      .catch(function (err) {
+        if (err) {
+          console.log(err)
+          return res.sendStatus(500)
+        }
+      })
     }
 
     let newBook = new Books(req.body)
@@ -136,6 +196,10 @@ class Book {
       date: newBook.date,
       isbn13: newBook.isbn13
     }, function(err, data) {
+      if (err) {
+        console.log(err)
+        return res.sendStatus(500)
+      }
       if (data) flagBook(data.isbn13)
     })
   }
@@ -164,7 +228,7 @@ class Book {
         return res.status(201).json(newBooks)
       })
   }
-
+// TODO: Change name to get books
   static getTrades(req, res) {
     Users.find({ "books.0": { "$exists": true } }, function(err, users) {
       if (err) {
@@ -192,205 +256,206 @@ class Book {
   }
 
   static offerBook(req, res) {
-    if (req.body.tradeUId === req.body.uId) return res.sendStatus(500)
+    if (req.body.offerUId === req.body.uId) return res.sendStatus(500)
     if (req.body.uId !== req.user.twitter.id) return res.sendStatus(400)
+
+    let user
 
     function flagBook() {
       // find user
-      Users.findOne({"twitter.id": req.body.tradeUId}, function (err, u) {
-        if (err) {
-          console.log(err)
-          return res.sendStatus(500)
-        }
+      Users.findOne({"twitter.id": req.body.offerUId}).exec()
+      .then(function (u) {
         if (u) {
-          u.books.forEach((item) => {
-            if (item.isbn13 === req.body.tradeBId) {
+          user = u
+          user.books.forEach((item) => {
+            if (item.isbn13 === req.body.offerBId) {
               if (item.offerUserId === "") {
                 item.offerUserId = req.body.uId
                 item.offerIsbn13 = req.body.bId
               }
             }
           })
-          u.offers.push({
-            isbn13: req.body.tradeBId,
+          user.offers.push({
+            isbn13: req.body.offerBId,
             trade: true,
             offerIsbn13: req.body.bId,
             offerUserId: req.body.uId
           })
-          u.save(function (err, d) {
-            if (err) {
-              console.log(err)
-              return res.sendStatus(500)
-            } else {
-              Users.findOne({"twitter.id": req.user.twitter.id}, function (err, me) {
-                if (err) {
-                  console.log(err)
-                  return res.sendStatus(500)
-                } else {
-                  me.offers.push({
-                  	isbn13: req.body.bId,
-                  	trade: true,
-                  	offerIsbn13: req.body.tradeBId,
-                  	offerUserId: req.body.tradeUId
-                  })
-                  me.save(function (err, d) {
-                    if (err) {
-                      console.log(err)
-                      return res.sendStatus(500)
-                    }
-                    return res.status(201).json({text: "Offer successfully made"})
-                  })
-                }
-              })
-            }
-          })
+          return user.save()
         } else return res.sendStatus(500)
+      })
+      .then(function (d) {
+        return Users.findOne({"twitter.id": req.user.twitter.id}).exec()
+      })
+      .then(function (me) {
+        me.offers.push({
+          isbn13: req.body.bId,
+          trade: true,
+          offerIsbn13: req.body.offerBId,
+          offerUserId: req.body.offerUId
+        })
+        me.save(function (err, d) {
+          if (err) {
+            console.log(err)
+            return res.sendStatus(500)
+          }
+          return res.status(201).json({text: "Offer successfully made"})
+        })
+      })
+      .catch(function (err) {
+        if (err) {
+          console.log(err)
+          return res.sendStatus(500)
+        }
       })
     }
     flagBook()
   }
 
   static changeOffer(req, res) {
-    if (req.body.tradeUId === req.body.uId) return res.sendStatus(500)
+    if (req.body.offerUId === req.body.uId) return res.sendStatus(500)
     if (req.body.uId !== req.user.twitter.id) return res.sendStatus(400)
     console.log(req.body)
+
     // req.user.twitter.id YOU
     // req.body.bId        YOU
-    // req.body.tradeUId      RECIPIENT
-    // req.body.tradeBId   RECIPIENT
+    // req.body.offerUId      RECIPIENT
+    // req.body.offerBId   RECIPIENT
+
     console.log("HERE 1")
     function rejectTrade() {
+      let user
       console.log("REJECT 1")
       // find recipient
-      Users.findOne({"twitter.id": req.body.tradeUId}, function (err, u) {
-        if (err) {
-          console.log("REJECT 2")
-          console.log(err)
-          return res.sendStatus(500)
-        }
-        console.log(u)
+      Users.findOne({"twitter.id": req.body.offerUId}).exec()
+      .then(function (u) {
         if (u) {
+          user = u
           console.log("REJECT 3")
           // Remove offers with their old book
-          u.books.forEach((item) => {
-            if (item.isbn13 === req.body.tradeBId) {
+          user.books.forEach((item) => {
+            if (item.isbn13 === req.body.offerBId) {
               item.trade = true
               item.offerUserId = ""
               item.offerIsbn13 = ""
             }
           })
-          u.offers = u.offers.filter((item) => {
-            return !(item.isbn13 === req.body.tradeBId && item.offerIsbn13 === req.body.bId)
+          console.log()
+          console.log()
+          console.log(user)
+          console.log()
+          console.log()
+          user.offers = user.offers.filter((item) => {
+            return !(item.isbn13 === req.body.offerBId && item.offerIsbn13 === req.body.bId)
           })
-          u.save(function (err, d) {
-            if (err) {
-              console.log("REJECT 4")
-              console.log(err)
-              return res.sendStatus(500)
-            } else {
-              console.log("REJECT 5")
-              Users.findOne({"twitter.id": req.user.twitter.id}, function (err, me) {
-                if (err) {
-                  console.log("REJECT 6")
-                  console.log(err)
-                  return res.sendStatus(500)
-                } else {
-                  // Remove offers with your old book
-                  me.books.forEach((item) => {
-                    if (item.isbn13 === req.body.bId) {
-                      item.trade = true
-                      item.offerUserId = ""
-                      item.offerIsbn13 = ""
-                    }
-                  })
-                  me.offers = u.offers.filter((item) => {
-                    return !(item.tradeBId === req.body.isbn13 && item.offerIsbn13 === req.body.bId)
-                  })
-                  me.save(function (err, d) {
-                    if (err) {
-                      console.log("REJECT 7")
-                      console.log(err)
-                      return res.sendStatus(500)
-                    }
-                    return res.status(201).json({text: "Offer successfully made"})
-                  })
-                }
-              })
-            }
-          })
+          console.log()
+          console.log()
+          console.log(user)
+          console.log()
+          console.log()
+          return user.save()
         } else {
           console.log("REJECT 8")
+          return res.sendStatus(500)
+        }
+      })
+      .then(function (d) {
+        console.log("REJECT 5")
+        return Users.findOne({"twitter.id": req.user.twitter.id}).exec()
+      })
+      .then(function (me) {
+        // Remove offers with your old book
+        me.books.forEach((item) => {
+          if (item.isbn13 === req.body.bId) {
+            item.trade = true
+            item.offerUserId = ""
+            item.offerIsbn13 = ""
+          }
+        })
+        console.log()
+        console.log()
+        console.log(me)
+        console.log()
+        console.log()
+        me.offers = user.offers.filter((item) => {
+          return !(item.isbn13 === req.body.isbn13 && item.offerIsbn13 === req.body.offerBId)
+        })
+        console.log()
+        console.log()
+        console.log(me)
+        console.log()
+        console.log()
+        return me.save()
+      })
+      .then(function (d) {
+        return res.status(201).json({text: "Offer successfully made"})
+      })
+      .catch(function (err) {
+        if (err) {
+          console.log("ERROR")
+          console.log(err)
           return res.sendStatus(500)
         }
       })
     }
 
     function acceptTrade() {
+      let user
       console.log("ACCEPT 1")
       // find recipient
-      Users.findOne({"twitter.id": req.body.tradeUId}, function (err, u) {
-        if (err) {
-          console.log("ACCEPT 2")
-          console.log(err)
-          return res.sendStatus(500)
-        }
+      Users.findOne({"twitter.id": req.body.offerUId}).exec()
+      .then(function (err, u) {
         if (u) {
+          user = u
           console.log("ACCEPT 3")
           // Remove offers and books with their old book
-          u.books = u.books.filter((item) => {
-            return item.isbn13 !== req.body.tradeBId
+          user.books = user.books.filter((item) => {
+            return item.isbn13 !== req.body.offerBId
           })
-          u.offers = u.offers.filter((item) => {
-            return item.isbn13 !== req.body.tradeBId
+          user.offers = user.offers.filter((item) => {
+            return item.isbn13 !== req.body.offerBId
           })
           // recipient gets your book
-          u.books.push({
+          user.books.push({
             isbn13: req.body.bId,
             trade: false,
             offerIsbn13: "",
             offerUserId: ""
           })
-          u.save(function (err, d) {
-            if (err) {
-              console.log("ACCEPT 4")
-              console.log(err)
-              return res.sendStatus(500)
-            } else {
-              Users.findOne({"twitter.id": req.user.twitter.id}, function (err, me) {
-                if (err) {
-                  console.log("ACCEPT 5")
-                  console.log(err)
-                  return res.sendStatus(500)
-                } else {
-                  console.log("ACCEPT 6")
-                  // Remove offers and books with their old book
-                  me.books = me.books.filter((item) => {
-                    return item.isbn13 !== req.body.bId
-                  })
-                  me.offers = me.offers.filter((item) => {
-                    return item.isbn13 !== req.body.bId
-                  })
-                  // recipient gets your book
-                  me.books.push({
-                    isbn13: req.body.tradeBId,
-                    trade: false,
-                    offerIsbn13: "",
-                    offerUserId: ""
-                  })
-                  me.save(function (err, d) {
-                    if (err) {
-                      console.log("ACCEPT 7")
-                      console.log(err)
-                      return res.sendStatus(500)
-                    }
-                    return res.status(201).json({text: "Offer successfully made"})
-                  })
-                }
-              })
-            }
-          })
+          return user.save()
         } else {
           console.log("ACCEPT 8")
+          return res.sendStatus(500)
+        }
+      })
+      .then(function (err, d) {
+        return Users.findOne({"twitter.id": req.user.twitter.id}).exec()
+      })
+      .then(function (err, me) {
+        console.log("ACCEPT 6")
+        // Remove offers and books with their old book
+        me.books = me.books.filter((item) => {
+          return item.isbn13 !== req.body.bId
+        })
+        me.offers = me.offers.filter((item) => {
+          return item.isbn13 !== req.body.bId
+        })
+        // recipient gets your book
+        me.books.push({
+          isbn13: req.body.offerBId,
+          trade: false,
+          offerIsbn13: "",
+          offerUserId: ""
+        })
+        return me.save()
+      })
+      .then(function (d) {
+        return res.status(201).json({text: "Offer successfully made"})
+      })
+      .catch(function (err) {
+        if (err) {
+          console.log("ERROR")
+          console.log(err)
           return res.sendStatus(500)
         }
       })
