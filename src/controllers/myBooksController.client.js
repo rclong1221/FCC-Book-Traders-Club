@@ -13,8 +13,6 @@ $(document).ready(function () {
   });
   $.when(getUserBooks()).done(function (r) {
     myBooks = r;
-    makeTradesDiv();
-    $("#t").append(tradesDiv);
     makeBooksDiv();
     $("#m").append(booksDiv);
   })
@@ -33,13 +31,13 @@ function getUserBooks() {
 //   });
 // }
 
-
-
 function getUserOffers() {
   $.get("/api/offer/", function (d) {
     offers = d;
     makeOffersDiv();
     $("#o").append(offersDiv);
+    makeTradesDiv();
+    $("#t").append(tradesDiv);
   });
 }
 
@@ -63,20 +61,59 @@ function makeBooksDiv() {
   });
 }
 
+// function makeTradesDiv() {
+//   myBooks.forEach((b) => {
+//     if (b.info.trade) {
+//       tradesDiv += `
+//       <div class="col-3 border rounded" id="m-o-${b.info.isbn13}">
+//         <div class="row">
+//           <div class="col-7">
+//             Title: ${b.book.title}<br/>
+//             Author: ${b.book.author}<br/>
+//             Date: ${b.book.date}<br/>
+//             ISBN13: ${b.book.isbn13}<br/>
+//           </div>
+//           <div class="col-5">
+//             <img src="${b.book.img_url}"/>
+//           </div>
+//         </div>
+//       </div>
+//       `
+//     }
+//   });
+// }
+
 function makeTradesDiv() {
-  myBooks.forEach((b) => {
-    if (b.info.trade) {
+  console.log(offers)
+  offers.oo.forEach((o) => {
+    if (o.recipient.twitter.id !== "") {
       tradesDiv += `
-      <div class="col-3 border rounded" id="m-o-${b.info.isbn13}">
+      <div class="col-3 border rounded" id="t-o-${o.recipientBook.isbn13}">
         <div class="row">
+          <h4 class="col-12 text-center">You</h4>
+          <div class="col-5">
+            <img src="${o.recipientBook.img_url}"/>
+          </div>
           <div class="col-7">
-            Title: ${b.book.title}<br/>
-            Author: ${b.book.author}<br/>
-            Date: ${b.book.date}<br/>
-            ISBN13: ${b.book.isbn13}<br/>
+            Title: ${o.recipientBook.title}<br/>
+            Author: ${o.recipientBook.author}<br/>
+            Date: ${o.recipientBook.date}<br/>
+            ISBN13: ${o.recipientBook.isbn13}<br/>
+            <button type="button" class="btn btn-danger" onclick="changeOffer(false, '${o.recipient.twitter.id}', '${o.recipientBook.isbn13}', '${o.recipient.twitter.id}', '${o.recipientBook.isbn13}')">Rescind</button>
+          </div>
+        </div>
+      </div>
+      <div class="col-3 border rounded" id="m-o-${o.creatorBook.isbn13}">
+        <div class="row">
+          <h4 class="col-12 text-center">${o.creator.twitter.displayName}</h4>
+          <div class="col-7">
+            Title: ${o.creatorBook.title}<br/>
+            Author: ${o.creatorBook.author}<br/>
+            Date: ${o.creatorBook.date}<br/>
+            ISBN13: ${o.creatorBook.isbn13}<br/>
           </div>
           <div class="col-5">
-            <img src="${b.book.img_url}"/>
+            <img src="${o.creatorBook.img_url}"/>
           </div>
         </div>
       </div>
@@ -126,7 +163,7 @@ function makeTradesDiv() {
 
 function makeOffersDiv() {
   console.log(offers)
-  offers.forEach((o) => {
+  offers.io.forEach((o) => {
     if (o.creator.twitter.id !== "") {
       offersDiv += `
       <div class="col-3 border rounded" id="m-o-${o.creatorBook.isbn13}">
