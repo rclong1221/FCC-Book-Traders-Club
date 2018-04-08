@@ -8,15 +8,13 @@ const Users = require(path + '/src/models/users.js').User
 class Offer {
   static addOffer(req, res) {
     let users, books
-    console.log(req.body)
+
     Users.find({'twitter.id': {$in: [req.body.creator, req.body.recipient]}}).exec()
     .then(function (us) {
-      console.log(us)
       users = us
       return Books.find({isbn13: {$in: [req.body.creatorBook, req.body.recipientBook]}}).exec()
     })
     .then(function (bs) {
-      console.log(bs)
       books = bs
       let newOffer = new Offers({
         creator: users[0],
@@ -27,13 +25,13 @@ class Offer {
       return newOffer.save()
     })
     .then(function (o) {
-      console.log(o)
       return res.status(201).json(o)
     })
     .catch(function (err) {
-      console.log('!!!!!!!!!!!!!!!!!!!!!!!!!!!ERROR!!!!!!!!!!!!!!!!!!!!!!!!!!!')
-      console.log(err)
-      return res.sendStatus(500)
+      if (err) {
+        console.log(err)
+        return res.sendStatus(500)
+      }
     })
   }
   static getOffers(req, res) {
