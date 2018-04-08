@@ -35,7 +35,22 @@ class Offer {
     })
   }
   static getOffers(req, res) {
-
+    Users.find({'twitter.id': req.user.twitter.id}).exec()
+    .then(function (user) {
+      return Offers.find({$or: [{'creator.$oid': user._id}, {'recipient.$oid': user._id}]})
+      .populate('creator')
+      .populate('creatorBook')
+      .populate('recipient')
+      .populate('recipientBook')
+      .exec()
+    })
+    .then(function (offers) {
+      return res.status(201).json(offers)
+    })
+    .catch(function (err) {
+      console.log(err)
+      return res.sendStatus(500)
+    })
   }
 }
 

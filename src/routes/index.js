@@ -80,6 +80,7 @@ module.exports = function (app, passport) {
 		.put(isLoggedIn, Book.changeOffer)
 
 	app.route('/api/offer/')
+		.get(isLoggedIn, Offer.getOffers)
 		.post(isLoggedIn, Offer.addOffer)
 
 }
