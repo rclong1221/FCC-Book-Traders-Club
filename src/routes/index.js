@@ -2,6 +2,7 @@
 
 const path = process.cwd()
 const Book = require(path + '/src/controllers/bookController.server.js')
+const Offer = require(path + '/src/controllers/offerController.server.js')
 
 module.exports = function (app, passport) {
 
@@ -67,6 +68,7 @@ module.exports = function (app, passport) {
 		.get(Book.getTrades)
 
 	app.route('/api/user/:id/offer/')
+		.get(isLoggedIn, Book.getMyOffers)
 		.put(isLoggedIn, Book.offerBook)
 
 	app.route('/my-books')
@@ -76,5 +78,8 @@ module.exports = function (app, passport) {
 
 	app.route('/api/user/:id/offer/:id')
 		.put(isLoggedIn, Book.changeOffer)
+
+	app.route('/api/offer/')
+		.post(isLoggedIn, Offer.addOffer)
 
 }
