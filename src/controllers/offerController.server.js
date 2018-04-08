@@ -7,15 +7,24 @@ const Users = require(path + '/src/models/users.js').User
 
 class Offer {
   static addOffer(req, res) {
-    let users, books
+    let users = [],
+        books = []
 
-    Users.find({'twitter.id': {$in: [req.body.creator, req.body.recipient]}}).exec()
+    Users.findOne({'twitter.id': req.body.creator}).exec()
     .then(function (us) {
-      users = us
-      return Books.find({isbn13: {$in: [req.body.creatorBook, req.body.recipientBook]}}).exec()
+      users.push(us)
+      return Books.findOne({isbn13: req.body.creatorBook}).exec()
     })
     .then(function (bs) {
-      books = bs
+      books.push(bs)
+      return Users.findOne({'twitter.id': req.body.recipient}).exec()
+    })
+    .then(function (us) {
+      users.push(us)
+      return Books.findOne({isbn13: req.body.recipientBook}).exec()
+    })
+    .then(function (bs) {
+      books.push(bs)
       let newOffer = new Offers({
         creator: users[0],
         creatorBook: books[0],
@@ -34,18 +43,34 @@ class Offer {
       }
     })
   }
+
   static getOffers(req, res) {
-    Users.find({'twitter.id': req.user.twitter.id}).exec()
-    .then(function (user) {
-      return Offers.find({$or: [{'creator.$oid': user._id}, {'recipient.$oid': user._id}]})
+    let user, incomingOffers, outgoingOffers
+    Users.findOne({'twitter.id': req.user.twitter.id}).exec()
+    .then(function (u) {
+      user = u
+      return Offers.find({'recipient': user._id})
       .populate('creator')
       .populate('creatorBook')
       .populate('recipient')
       .populate('recipientBook')
       .exec()
     })
-    .then(function (offers) {
-      return res.status(201).json(offers)
+    .then(function (ios) {
+      incomingOffers = ios
+      return Offers.find({'creator': user._id})
+      .populate('creator')
+      .populate('creatorBook')
+      .populate('recipient')
+      .populate('recipientBook')
+      .exec()
+    })
+    .then(function (oos) {
+      outgoingOffers = oos
+      return res.status(201).json({
+        io: incomingOffers,
+        oo: outgoingOffers
+      })
     })
     .catch(function (err) {
       console.log(err)
