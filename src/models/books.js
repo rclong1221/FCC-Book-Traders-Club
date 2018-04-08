@@ -11,4 +11,7 @@ var Books = new Schema({
   img_url: String
 })
 
-module.exports = mongoose.model('Books', Books)
+module.exports = {
+  Book: mongoose.model('Books', Books),
+  BookSchema: Books
+}
