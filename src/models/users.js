@@ -14,7 +14,8 @@ var User = new Schema({
 		username: String,
 		location: String
 	},
-	books: [OwnedBook]
+	books: [OwnedBook],
+	name: String
 })
 
 module.exports = {

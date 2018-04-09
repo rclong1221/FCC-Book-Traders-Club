@@ -37,8 +37,7 @@ module.exports = function (passport) {
 					newUser.twitter.displayName = profile.displayName
 					newUser.twitter.location = profile.location
 					newUser.books = []
-					newUser.trades = []
-					newUser.offers = []
+					newUser.name = ''
 
 					newUser.save(function (err) {
 						if (err) {

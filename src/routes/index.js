@@ -3,6 +3,7 @@
 const path = process.cwd()
 const Book = require(path + '/src/controllers/bookController.server.js')
 const Offer = require(path + '/src/controllers/offerController.server.js')
+const User = require(path + '/src/controllers/userController.server.js')
 
 module.exports = function (app, passport) {
 
@@ -39,6 +40,10 @@ module.exports = function (app, passport) {
 		.get(isLoggedIn, function (req, res) {
 			res.json(req.user.twitter)
 		})
+
+	app.route('/api/account/:id')
+		.get(isLoggedIn, User.getProfile)
+		.post(isLoggedIn, User.updateProfile)
 
 	app.route('/auth/twitter')
 		.get(passport.authenticate('twitter'))
