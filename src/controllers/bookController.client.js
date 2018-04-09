@@ -133,23 +133,6 @@ function getTradesAndUserBooksTrades() {
   });
 }
 
-// function makeOffer(bId) {
-//   var b = {uId: user.id, bId: bId, offerBId: offerBId, offerUId: offerUId };
-//
-//   $.ajax({
-//     type: "PUT",
-//     url: `/api/user/${user.id}/offer`,
-//     data: b,
-//     dataType: "json",
-//     success: function (d) {
-//       // TODO: Use return data to toast
-//       console.log(d);
-//     },
-//     error: function (d) {
-//     }
-//   });
-// }
-
 function makeOffer(bId) {
   var b = {
     creator: user.id,

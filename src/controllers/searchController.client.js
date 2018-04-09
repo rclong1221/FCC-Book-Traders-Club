@@ -40,24 +40,6 @@ function findBook(i13) {
   return b;
 }
 
-// TODO: Add to trade
-function tradeBook(i13) {
-  var b = findBook(i13);
-
-  $.ajax({
-    type: "PUT",
-    url: `/api/user/${user.id}/trade`,
-    data: b,
-    dataType: "json",
-    success: function (d) {
-      // TODO: Use return data to populate owned book button in ui
-      console.log(d);
-    },
-    error: function (d) {
-    }
-  });
-}
-
 function search() {
   var q = window.location.search.substring(3);
   $.get("/api/books/" + q, function (d) {
@@ -80,7 +62,6 @@ function search() {
             ISBN13: ${book.isbn13}<br/>
             <img src="${book.img_url}"/>
             <button class="btn btn-primary" id="b-${book.isbn13}" type="button" onclick={ownBook("${book.isbn13}")}>Own${ownCount}</button>
-            <button class="btn btn-secondary" id="b-${book.isbn13}" type="button" onclick={tradeBook("${book.isbn13}")}>Trade</button>
           </div>
       `
       $("#c").append(h)

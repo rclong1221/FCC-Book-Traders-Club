@@ -61,23 +61,13 @@ module.exports = function (app, passport) {
 		.get(isLoggedIn, Book.getMyBooks)
 		.post(isLoggedIn, Book.addBook)
 
-	app.route('/api/user/:id/trade/')
-		.put(isLoggedIn, Book.tradeBook)
-
 	app.route('/api/books')
-		.get(Book.getTrades)
-
-	app.route('/api/user/:id/offer/')
-		.get(isLoggedIn, Book.getMyOffers)
-		.put(isLoggedIn, Book.offerBook)
+		.get(Book.getBooks)
 
 	app.route('/my-books')
 		.get(isLoggedIn, function(req, res) {
 			res.sendFile(path + '/public/my-books.html')
 		})
-
-	app.route('/api/user/:id/offer/:id')
-		.put(isLoggedIn, Book.changeOffer)
 
 	app.route('/api/offer/')
 		.get(isLoggedIn, Offer.getOffers)
