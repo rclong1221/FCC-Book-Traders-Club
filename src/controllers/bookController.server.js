@@ -56,12 +56,7 @@ class Book {
             if (item.isbn13 === bId) unowned = false
           })
           if (unowned) {
-            u.books.push({
-              isbn13: bId,
-              trade: false,
-              offerUserId: "",
-              offerIsbn13: ""
-            })
+            u.books.push({isbn13: bId,})
             u.save(function (err, d) {
               if (err) {
                 console.log(err)
@@ -112,6 +107,7 @@ class Book {
   }
 
   static search(req, res) {
+    if (req.params.q.length > 0) {
       books.volumes.list({
         auth: API_KEY,
         q: req.params.q
@@ -121,11 +117,12 @@ class Book {
           return res.sendStatus(500)
         }
         let newBooks = []
+        console.log(data.data.items)
         data.data.items.forEach((item) => {
           let nb = {
               title: decodeURI(item.volumeInfo.title),
               date: item.volumeInfo.publishedDate,
-              author: item.volumeInfo.authors[0],
+              author: item.volumeInfo.authors ? item.volumeInfo.authors[0] : '',
               img_url: item.volumeInfo.imageLinks === undefined ? '' : item.volumeInfo.imageLinks.thumbnail,
               isbn13: item.volumeInfo.industryIdentifiers[0].identifier
           }
@@ -134,6 +131,7 @@ class Book {
 
         return res.status(201).json(newBooks)
       })
+    }
   }
 
   static getBooks(req, res) {
