@@ -183,7 +183,7 @@ function ownBook(i13) {
     data: b,
     dataType: "json",
     success: function (d) {
-      // TODO: Use return data to populate owned book button in ui
+      // TODO: Toast
       console.log(d);
     },
     error: function (d) {
