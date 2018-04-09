@@ -57,15 +57,12 @@ class Book {
           })
           if (unowned) {
             u.books.push({isbn13: bId,})
-            u.save(function (err, d) {
-              if (err) {
-                console.log(err)
-                return res.sendStatus(500)
-              }
-              return res.status(201).json({books: d.books})
-            })
+            return u.save()
           } else return res.sendStatus(500)
         }
+      })
+      .then(function (d) {
+        return res.status(201).json({books: d.books})
       })
       .catch(function (err) {
         if (err) {
@@ -77,25 +74,14 @@ class Book {
 
     let newBook = new Books(req.body)
 
-    Books.findOne({
-      title: newBook.title,
-      author: newBook.author,
-      date: newBook.date,
-      isbn13: newBook.isbn13
-    }).exec()
+    Books.findOne({isbn13: newBook.isbn13}).exec()
     .then(function(data) {
-      // if book not in db
-      if (!data) {
-        // save book
-        newBook.save(newBook, function (err, b) {
-          if (err) {
-            console.log(err)
-            return res.sendStatus(500)
-          }
-          else addOwnedBook(b.isbn13)
-        })
-      }
+      // if book not in db, save book
+      if (!data) return newBook.save()
       else addOwnedBook(data.isbn13)
+    })
+    .then(function (b) {
+      addOwnedBook(b.isbn13)
     })
     .catch(function (err) {
       if (err) {
@@ -115,16 +101,15 @@ class Book {
           console.log(err)
           return res.sendStatus(500)
         }
-        let newBooks = []
-        data.data.items.forEach((item) => {
-          let nb = {
+
+        let newBooks = data.data.items.map((item) => {
+          return {
               title: decodeURI(item.volumeInfo.title),
               date: item.volumeInfo.publishedDate,
               author: item.volumeInfo.authors ? item.volumeInfo.authors[0] : '',
               img_url: item.volumeInfo.imageLinks === undefined ? '' : item.volumeInfo.imageLinks.thumbnail,
               isbn13: item.volumeInfo.industryIdentifiers[0].identifier
           }
-          newBooks.push(nb)
         })
 
         return res.status(201).json(newBooks)
