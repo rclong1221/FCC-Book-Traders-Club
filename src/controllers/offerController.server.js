@@ -105,7 +105,7 @@ class Offer {
       }
     })
   }
-  
+
   static acceptOffer(req, res) {
     let recipient,
         creator,

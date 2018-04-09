@@ -88,7 +88,6 @@ class Book {
       if (!data) {
         // save book
         newBook.save(newBook, function (err, b) {
-          // console.log("SAVE")
           if (err) {
             console.log(err)
             return res.sendStatus(500)
@@ -117,7 +116,6 @@ class Book {
           return res.sendStatus(500)
         }
         let newBooks = []
-        console.log(data.data.items)
         data.data.items.forEach((item) => {
           let nb = {
               title: decodeURI(item.volumeInfo.title),
