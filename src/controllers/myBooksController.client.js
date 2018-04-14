@@ -1,5 +1,9 @@
 'use strict';
 
+var noTrades = `<h4 class="col-12 text-center">You have made no trade offers =((</h4>`;
+var noOffers = `<h4 class="col-12 text-center">You have no trade offers =((</h4>`;
+var nobooks = `<h4 class="col-12 text-center">You have no books =((</h4>`
+
 var myBooks;
 var offers;
 var booksDiv = "";
@@ -14,7 +18,8 @@ $(document).ready(function () {
   $.when(getUserBooks()).done(function (r) {
     myBooks = r;
     makeBooksDiv();
-    $("#m").append(booksDiv);
+    if (booksDiv.length > 0) $("#m").append(booksDiv);
+    else $("#m").append(noBooks);
   })
   getUserOffers();
 });
@@ -27,16 +32,18 @@ function getUserOffers() {
   $.get("/api/offer/", function (d) {
     offers = d;
     makeOffersDiv();
-    $("#o").append(offersDiv);
+    if (offersDiv.length > 0) $("#o").append(offersDiv);
+    else $("#o").append(noOffers);
     makeTradesDiv();
-    $("#t").append(tradesDiv);
+    if (tradesDiv.length > 0) $("#t").append(tradesDiv);
+    else $("#t").append(noTrades);
   });
 }
 
 function makeBooksDiv() {
   myBooks.forEach((b) => {
     booksDiv += `
-    <div class="col-3 border rounded" id="m-o-${b.info.isbn13}">
+    <div class="col-3 border rounded px-2 py-2" id="m-o-${b.info.isbn13}">
       <div class="row">
         <div class="col-7">
           Title: ${b.book.title}<br/>
@@ -57,7 +64,7 @@ function makeTradesDiv() {
   offers.oo.forEach((o) => {
     if (o.recipient.twitter.id !== "") {
       tradesDiv += `
-      <div class="col-3 border rounded" id="m-o-${o.creatorBook.isbn13}">
+      <div class="col-3 border rounded px-2 py-2" id="m-o-${o.creatorBook.isbn13}">
         <div class="row">
           <h4 class="col-12 text-center">You</h4>
           <div class="col-7">
@@ -72,7 +79,7 @@ function makeTradesDiv() {
           </div>
         </div>
       </div>
-      <div class="col-3 border rounded" id="t-o-${o.recipientBook.isbn13}">
+      <div class="col-3 border rounded px-2 py-2" id="t-o-${o.recipientBook.isbn13}">
         <div class="row">
           <h4 class="col-12 text-center">${o.recipient.twitter.displayName}</h4>
           <div class="col-5">
@@ -95,7 +102,7 @@ function makeOffersDiv() {
   offers.io.forEach((o, index) => {
     if (o.creator.twitter.id !== "") {
       offersDiv += `
-      <div class="col-3 border rounded" id="t-o-${o.recipientBook.isbn13}">
+      <div class="col-3 border rounded px-2 py-2" id="t-o-${o.recipientBook.isbn13}">
         <div class="row">
           <h4 class="col-12 text-center">You</h4>
           <div class="col-5">
@@ -110,7 +117,7 @@ function makeOffersDiv() {
           </div>
         </div>
       </div>
-      <div class="col-3 border rounded" id="m-o-${o.creatorBook.isbn13}">
+      <div class="col-3 border rounded px-2 py-2" id="m-o-${o.creatorBook.isbn13}">
         <div class="row">
           <h4 class="col-12 text-center">${o.creator.twitter.displayName}</h4>
           <div class="col-7">

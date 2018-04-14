@@ -52,7 +52,7 @@ function search() {
         // }
         ownCount = (ownCount === 0) ? "" : ` ${ownCount}`;
         var h = `
-            <div class="col-6 col-sm-6 col-md-4 border rounded" id="${book.isbn13}">
+            <div class="col-4 col-sm-4 col-md-3 border rounded" id="${book.isbn13}">
               Title: ${book.title}<br/>
               Author: ${book.author}<br/>
               Date: ${book.date}<br/>

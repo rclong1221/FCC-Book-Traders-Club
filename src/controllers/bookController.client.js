@@ -20,13 +20,13 @@ function makeBooksDiv() {
   myBooks.forEach((b) => {
     booksDiv += `
     <div class="col-12 border rounded" id="m-o-${b.info.isbn13}" onclick=offerBook('${b.info.isbn13}')>
-      <div class="row">
+      <div class="row py-2">
         <div class="col-8">
           Title: ${b.book.title}<br/>
           Author: ${b.book.author}<br/>
           Date: ${b.book.date}<br/>
           ISBN13: ${b.book.isbn13}<br/>
-          <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModal" id="b-o-${b.book.isbn13}" type="button" onclick="makeOffer('${b.book.isbn13}')">
+          <button type="button" class="btn btn-success btn-block" data-toggle="modal" data-target="#myModal" id="b-o-${b.book.isbn13}" type="button" onclick="makeOffer('${b.book.isbn13}')">
             Submit Offer
           </button>
         </div>
@@ -56,14 +56,14 @@ function setUserBooks(r2) {
 function updateDOM() {
   userBooks.forEach(function (u) {
     u.books.forEach(function (book) {
-      var name = (user.id === u.twitter.id) ? "You are" : `${u.twitter.displayName} is`;
+      var name = (user.id === u.twitter.id) ? "You" : `${u.twitter.displayName}`;
       var modal = "";
       if (user.id) {
         if (user.id !== u.twitter.id) modal = `
-          <button class="btn btn-primary" id="b-${book.book.isbn13}" type="button" onclick={ownBook("${book.book.isbn13}")}>Add to Bookshelf</button>
+          <button class="btn btn-primary btn-block" id="b-${book.book.isbn13}" type="button" onclick={ownBook("${book.book.isbn13}")}>Add to Bookshelf</button>
 
           <!-- Button to Open the Modal -->
-          <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#myModal" id="b-o-${book.book.isbn13}" type="button" onclick="selectTrade('${book.book.isbn13}', '${u.twitter.id}')">
+          <button type="button" class="btn btn-success btn-block" data-toggle="modal" data-target="#myModal" id="b-o-${book.book.isbn13}" type="button" onclick="selectTrade('${book.book.isbn13}', '${u.twitter.id}')">
             Make Offer
           </button>
 
@@ -95,8 +95,8 @@ function updateDOM() {
       }
 
       var h = `
-          <div class="col-6 col-sm-4 col-md-3 border rounded" id="${book.book.isbn13}">
-            <h4 class="text-center">${name} trading...</h4>
+          <div class="col-6 col-sm-4 col-md-3 border rounded px-2 py-2" id="${book.book.isbn13}">
+            <h4 class="text-center">${name}</h4>
             Title: ${book.book.title}<br/>
             Author: ${book.book.author}<br/>
             Date: ${book.book.date}<br/>

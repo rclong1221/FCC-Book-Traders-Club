@@ -1,10 +1,14 @@
 /********* Fonts **********/
 
-@import url('https://fonts.googleapis.com/css?family=Oleo+Script+Swash+Caps');
+@import url('https://fonts.googleapis.com/css?family=Pacifico');
 
 /****** Main Styling ******/
 header *, body * {
-  font-family: 'Raleway';
+  font-family: 'Courier';
+}
+
+h1, h2, h3 {
+  font-family: 'Pacifico';
 }
 
 a, a:hover, a:visited {
@@ -24,7 +28,7 @@ input:focus:-moz-placeholder {
 
 /****** Header Styling ******/
 .navbar-brand {
-  font: 1.5em "Oleo Script Swash Caps";
+  font: 1.5em "Pacifico";
 }
 
 /****** Login Styling ******/
@@ -40,8 +44,8 @@ input:focus:-moz-placeholder {
 
 
 /****** OAuth Button Styling ******/
-.bookster-text {
-  font: 5em "Oleo Script Swash Caps";
+.thebookie-text {
+  font: 5em "Pacifico";
   cursor: default;
 }
 

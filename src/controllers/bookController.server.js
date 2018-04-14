@@ -13,34 +13,34 @@ class Book {
   static getMyBooks(req, res) {
     let user
     Users.findOne({"twitter.id": req.user.twitter.id}).exec()
-      .then(function (u) {
-        if (u) {
-          user = u
-          let bookList = u.books.map((book) => { return book.isbn13 })
+    .then(function (u) {
+      if (u) {
+        user = u
+        let bookList = u.books.map((book) => { return book.isbn13 })
 
-          return Books.find({isbn13: {$in: bookList}}).exec()
-        }
-        else return res.sendStatus(500)
-      })
-      .then(function (b) {
-        let response = []
+        return Books.find({isbn13: {$in: bookList}}).exec()
+      }
+      else return res.sendStatus(500)
+    })
+    .then(function (b) {
+      let response = []
 
-        for (var j = 0; j < user.books.length; j++) {
-          for (var k = 0; k < b.length; k++) {
-            if (b[k].isbn13 === user.books[j].isbn13) {
-              let x = Object.assign({info: user.books[j]}, {book: b[k]})
-              response.push(x)
-              break;
-            }
+      for (var j = 0; j < user.books.length; j++) {
+        for (var k = 0; k < b.length; k++) {
+          if (b[k].isbn13 === user.books[j].isbn13) {
+            let x = Object.assign({info: user.books[j]}, {book: b[k]})
+            response.push(x)
+            break;
           }
         }
+      }
 
-        return res.status(201).json(response)
-      })
-      .catch(function (err) {
-        console.log(err)
-        return res.sendStatus(500)
-      })
+      return res.status(201).json(response)
+    })
+    .catch(function (err) {
+      console.log(err)
+      return res.sendStatus(500)
+    })
   }
 
   static addBook(req, res) {
@@ -118,27 +118,24 @@ class Book {
   }
 
   static getBooks(req, res) {
-    Users.find({ "books.0": { "$exists": true } }, function(err, users) {
-      if (err) {
-        console.log(err)
-        return res.sendStatus(500)
-      } else {
-        let bookIds = []
-        users.forEach((user) => {
-          user.books.forEach((book) => {
-            if (!bookIds.includes(book.isbn13)) bookIds.push(book.isbn13)
-          })
+    let users
+    Users.find({ "books.0": { "$exists": true } }).exec()
+    .then(function (us) {
+      users = us
+      let bookIds = []
+      users.forEach((user) => {
+        user.books.forEach((book) => {
+          if (!bookIds.includes(book.isbn13)) bookIds.push(book.isbn13)
         })
-        Books.find({isbn13: {$in: bookIds }}, function (err, books) {
-          if (err) {
-            console.log(err)
-            return res.sendStatus(500)
-          } else {
-            return res.status(201).json({users: users, books: books})
-          }
-        })
-        return res.status(500)
-      }
+      })
+      return Books.find({isbn13: {$in: bookIds }}).exec()
+    })
+    .then(function (books) {
+      return res.status(201).json({users: users, books: books})
+    })
+    .catch(function (err) {
+      console.log(err)
+      return res.sendStatus(500)
     })
   }
 }
