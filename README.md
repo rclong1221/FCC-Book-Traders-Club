@@ -1,10 +1,10 @@
 # thebookie
 
-https://alert-postage.glitch.me
+https://alert-postage.glitch.me  
 
 ## Installation
 
-git clone https://github.com/rclong1221/FCC-Book-Traders-Club.git
+git clone https://github.com/rclong1221/FCC-Book-Traders-Club.git  
 cd "FCC-Book-Traders-Club"  
 npm install  
 
