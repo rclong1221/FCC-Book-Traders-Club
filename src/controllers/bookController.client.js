@@ -26,12 +26,16 @@ function makeBooksDiv() {
           Author: ${b.book.author}<br/>
           Date: ${b.book.date}<br/>
           ISBN13: ${b.book.isbn13}<br/>
-          <button type="button" class="btn btn-success btn-block" data-toggle="modal" data-target="#myModal" id="b-o-${b.book.isbn13}" type="button" onclick="makeOffer('${b.book.isbn13}')">
-            Submit Offer
-          </button>
         </div>
         <div class="col-4">
           <img src="${b.book.img_url}"/>
+        </div>
+      </div>
+      <div class="row py-2">
+        <div class="col-12">
+          <button type="button" class="btn btn-success btn-block" data-toggle="modal" data-target="#myModal" id="b-o-${b.book.isbn13}" type="button" onclick="makeOffer('${b.book.isbn13}')">
+            Submit Offer
+          </button>
         </div>
       </div>
     </div>
@@ -60,13 +64,17 @@ function updateDOM() {
       var modal = "";
       if (user.id) {
         if (user.id !== u.twitter.id) modal = `
-          <button class="btn btn-primary btn-block" id="b-${book.book.isbn13}" type="button" onclick={ownBook("${book.book.isbn13}")}>Add to Bookshelf</button>
-
-          <!-- Button to Open the Modal -->
-          <button type="button" class="btn btn-success btn-block" data-toggle="modal" data-target="#myModal" id="b-o-${book.book.isbn13}" type="button" onclick="selectTrade('${book.book.isbn13}', '${u.twitter.id}')">
-            Make Offer
-          </button>
-
+          <div class="row absolute-bottom my-2 px-2">
+            <div class="col-12 col-sm-12 col-md-12 col-lg-6">
+              <button class="btn btn-primary btn-block" id="b-${book.book.isbn13}" type="button" onclick={ownBook("${book.book.isbn13}")}>Add to Shelf</button>
+              </div>
+              <div class="col-12 col-sm-12 col-md-12 col-lg-6">
+              <!-- Button to Open the Modal -->
+              <button type="button" class="btn btn-success btn-block" data-toggle="modal" data-target="#myModal" id="b-o-${book.book.isbn13}" type="button" onclick="selectTrade('${book.book.isbn13}', '${u.twitter.id}')">
+                Make Offer
+              </button>
+            </div>
+          </div>
           <!-- The Modal -->
           <div class="modal fade" id="myModal">
             <div class="modal-dialog">
@@ -96,13 +104,20 @@ function updateDOM() {
 
       var h = `
           <div class="col-6 col-sm-4 col-md-3 border rounded px-2 py-2" id="${book.book.isbn13}">
-            <h4 class="text-center">${name}</h4>
-            Title: ${book.book.title}<br/>
-            Author: ${book.book.author}<br/>
-            Date: ${book.book.date}<br/>
-            ISBN13: ${book.book.isbn13}<br/>
-            <img src="${book.book.img_url}"/>
+            <div class="row mb-4">
+              <h4 class="col-12 text-center">${name}</h4>
+              <div class="col-12 col-sm-12 col-md-6 mb-3">
+                Title: ${book.book.title}<br/>
+                Author: ${book.book.author}<br/>
+                Date: ${book.book.date}<br/>
+                ISBN13: ${book.book.isbn13}<br/>
+              </div>
+              <div class="col-12 col-sm-12 col-md-6 mb-3">
+                <img src="${book.book.img_url}"/>
+              </div>
+            </div>
             ${modal}
+
           </div>
       `
       $("#c").append(h)

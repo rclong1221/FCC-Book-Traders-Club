@@ -52,14 +52,26 @@ function search() {
         // }
         ownCount = (ownCount === 0) ? "" : ` ${ownCount}`;
         var h = `
-            <div class="col-4 col-sm-4 col-md-3 border rounded" id="${book.isbn13}">
+        <div class="col-3 border rounded" id="m-o-${book.isbn13}" onclick=offerBook('${book.isbn13}')>
+          <div class="row py-2 mb-4">
+            <div class="col-6 mb-4">
               Title: ${book.title}<br/>
               Author: ${book.author}<br/>
               Date: ${book.date}<br/>
               ISBN13: ${book.isbn13}<br/>
-              <img src="${book.img_url}"/>
-              <button class="btn btn-primary" id="b-${book.isbn13}" type="button" onclick={ownBook("${book.isbn13}")}>Own${ownCount}</button>
             </div>
+            <div class="col-6 mb-4">
+              <img src="${book.img_url}"/>
+            </div>
+          </div>
+          <div class="row absolute-bottom px-2 py-2">
+            <div class="col-12">
+              <button type="button" class="btn btn-success btn-block" id="b-${book.isbn13}" type="button" onclick={ownBook("${book.isbn13}")}>
+                Own${ownCount}
+              </button>
+            </div>
+          </div>
+        </div>
         `
         $("#c").append(h)
       })

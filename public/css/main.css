@@ -26,6 +26,15 @@ input:focus:-moz-placeholder {
     color: transparent !important;
 }
 
+/***** Positioning *****/
+.absolute-bottom {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 1030;
+}
+
 /****** Header Styling ******/
 .navbar-brand {
   font: 1.5em "Pacifico";
