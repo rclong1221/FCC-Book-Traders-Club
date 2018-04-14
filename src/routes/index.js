@@ -15,25 +15,29 @@ module.exports = function (app, passport) {
 		}
 	}
 
+	function loggedIn (req) {
+		return (req.isAuthenticated()) ? true : false
+	}
+
 	app.route('/')
 		.get(function (req, res) {
-			res.sendFile(path + '/public/index.html')
+			res.render('index', {loggedIn: loggedIn(req)})
 		})
 
 	app.route('/login')
 		.get(function (req, res) {
-			res.sendFile(path + '/public/login.html')
+			res.render('login', {loggedIn: loggedIn(req)})
 		})
 
 	app.route('/logout')
 		.get(function (req, res) {
 			req.logout()
-			res.redirect('/login')
+			res.redirect('/')
 		})
 
 	app.route('/profile')
 		.get(isLoggedIn, function (req, res) {
-			res.sendFile(path + '/public/profile.html')
+			res.render('profile', {loggedIn: loggedIn(req)})
 		})
 
 	app.route('/api/user/:id')
@@ -56,7 +60,7 @@ module.exports = function (app, passport) {
 
 	app.route('/search/')
 		.get(function (req, res) {
-			res.sendFile(path + '/public/search.html')
+			res.render('search', {loggedIn: loggedIn(req)})
 		})
 
 	app.route('/api/books/:q')
@@ -71,7 +75,7 @@ module.exports = function (app, passport) {
 
 	app.route('/my-books')
 		.get(isLoggedIn, function(req, res) {
-			res.sendFile(path + '/public/my-books.html')
+			res.render('my-books', {loggedIn: loggedIn(req)})
 		})
 
 	app.route('/api/offer/')

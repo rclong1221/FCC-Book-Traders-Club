@@ -6,7 +6,7 @@ const routes = require('./src/routes/index.js')
 const mongoose = require('mongoose')
 const passport = require('passport')
 const session = require('express-session')
-const handlebars = require('express-handlebars')
+const hbs = require('express-handlebars')
 const bodyParser = require('body-parser')
 
 const app = express()
@@ -17,13 +17,13 @@ mongoose.connect(process.env.MONGO_URI)
 mongoose.Promise = global.Promise
 
 // View engine
-app.engine('handlebars', handlebars({
-	extname: 'handlebars',
-	// defaultLayout: 'layout',
-	// layoutsDir: __dirname + '/src/views/layouts'
+app.engine('hbs', hbs({
+	extname: 'hbs',
+	defaultLayout: 'layout',
+	layoutsDir: __dirname + '/src/views/layouts'
 }))
 app.set('views', path.join(__dirname, 'src/views'))
-app.set('view engine', 'handlebars')
+app.set('view engine', 'hbs')
 
 
 app.use('/controllers', express.static(process.cwd() + '/src/controllers'))

@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 
 <html lang="en">
-
 	<head>
 		<meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -18,7 +17,6 @@
 		  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
 		    <span class="navbar-toggler-icon"></span>
 		  </button>
-
 		  <div class="collapse navbar-collapse pr-1 pr-sm-2 pr-md-5" id="navbarSupportedContent">
 				<div class="my-1 my-md-2 my-lg-0 ml-auto w-50">
 					<form class="input-group input-group-sm" method="get" action="/search/">
@@ -35,33 +33,18 @@
 					<li class="nav-item">
 		        <a class="nav-link first-color" href="/profile">Profile</a>
 		      </li>
-		      <li class="nav-item">
-		        <a class="nav-link first-color" href="/logout" id="lio">Login</a>
-		      </li>
+          <li class="nav-item">
+            {{#if loggedIn}}
+              <a class="nav-link first-color" href="/logout" id="lio">Logout</a>
+            {{else}}
+              <a class="nav-link first-color" href="/login" id="lio">Login</a>
+            {{/if}}
+          </li>
 		    </ul>
 		  </div>
 		</nav>
   </header>
 	<body>
-		<div class="container-fluid px-5 py-5">
-			<div class="row mx-1 my-1 mx-2 my-2 mx-mid-5 my-mid-5">
-				<div class="hidden-xs hidden-sm col-md-5"></div>
-				<div class="col-12 col-sm-6 col-md-2">
-					<a href="/auth/twitter">
-						<div class="text-center oauth-btn" id="twitter-login-btn">
-							<!-- <img src="/public/img/twitter_32px.png" alt="twitter logo" /> -->
-							Twitter
-						</div>
-					</a>
-				</div>
-				<div class="hidden-xs hidden-sm col-md-5"></div>
-			</div>
-
-    </div>
-
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-		<script type="text/javascript" src="controllers/userController.client.js"></script>
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+		{{{body}}}
 	</body>
 </html>
