@@ -26,6 +26,11 @@ input:focus:-moz-placeholder {
     color: transparent !important;
 }
 
+img {
+  min-width: 100%;
+  max-width: 100%;
+}
+
 /***** Positioning *****/
 .absolute-bottom {
   position: absolute;
